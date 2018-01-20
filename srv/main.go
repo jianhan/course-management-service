@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 
+	"github.com/micro/cli"
 	micro "github.com/micro/go-micro"
 )
 
@@ -16,11 +18,16 @@ func main() {
 		micro.Metadata(map[string]string{
 			"course": "sample course management system",
 		}),
+		micro.Flags(cli.StringFlag{
+			Name:  "env",
+			Usage: "Development environment: development/staging/production",
+		}),
 	)
-
-	// optionally setup command line usage
-	service.Init()
-
+	service.Init(
+		micro.Action(func(c *cli.Context) {
+			fmt.Printf("The env flag is: %s\n", c.String("env"))
+		}),
+	)
 	// Run server
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
