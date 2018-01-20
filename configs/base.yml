@@ -1,0 +1,3 @@
+mongo:
+  url: localhost
+enable_debug: true
