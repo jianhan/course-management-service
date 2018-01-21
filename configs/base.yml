@@ -1,5 +1,5 @@
 service: 
-  name: go.micro.srv.course-management
+  name: go.micro.srv.course_management
   register_ttl: 30
   register_interval: 10
   version: 1.0.0

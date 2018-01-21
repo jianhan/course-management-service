@@ -5,13 +5,13 @@ import (
 	"os"
 	"time"
 
-	creader "github.com/jianhan/pkg/configs"
+	cfgreader "github.com/jianhan/pkg/configs"
 	micro "github.com/micro/go-micro"
 	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	serviceConfigs, err := creader.NewReader(os.Getenv("ENV")).Read()
+	serviceConfigs, err := cfgreader.NewReader(os.Getenv("ENV")).Read()
 	if err != nil {
 		panic(fmt.Sprintf("error while reading configurations: %s", err.Error()))
 	}
