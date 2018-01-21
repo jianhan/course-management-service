@@ -5,18 +5,13 @@ import (
 	"os"
 	"time"
 
-	creader "github.com/jianhan/course-management-service/configs_reader"
-	"github.com/micro/cli"
+	creader "github.com/jianhan/pkg/configs"
 	micro "github.com/micro/go-micro"
 	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	env, ok := os.LookupEnv("ENV")
-	if !ok {
-		panic("missing environment variable 'ENV', failed to start service")
-	}
-	serviceConfigs, err := creader.NewConfigsReader(env).Read()
+	serviceConfigs, err := creader.NewReader(os.Getenv("ENV")).Read()
 	if err != nil {
 		panic(fmt.Sprintf("error while reading configurations: %s", err.Error()))
 	}
@@ -26,17 +21,8 @@ func main() {
 		micro.RegisterInterval(time.Duration(serviceConfigs.RegisterInterval)*10),
 		micro.Version(serviceConfigs.Version),
 		micro.Metadata(serviceConfigs.Metadata),
-		micro.Flags(cli.StringFlag{
-			Name:  "env",
-			Usage: "Development environment: development/staging/production",
-		}),
 	)
-	service.Init(
-		micro.Action(func(c *cli.Context) {
-			fmt.Printf("The env flag is: %s\n", c.String("env"))
-		}),
-	)
-	// Run server
+	service.Init()
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
