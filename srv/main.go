@@ -27,9 +27,10 @@ type scfgs struct {
 	metaData                map[string]string
 }
 
-func NewServiceConfigs(r io.Reader) ServiceConfigs {
-
-	r.Read([]byte("../configs/base.yml"))
+func NewServiceConfigs(r io.Reader, paths ...string) ServiceConfigs {
+	for _, v := range paths {
+		r.Read([]byte(v))
+	}
 	return nil
 }
 
@@ -53,7 +54,7 @@ func (s *ServiceConfigsReader) Read(p []byte) (n int, err error) {
 	if err != nil {              // Handle errors reading the config file
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
-	spew.Dump(viper.GetString("service.name"))
+
 	// spew.Dump(fileBaseName)
 	return 0, nil
 }
@@ -63,7 +64,9 @@ func NewServiceConfigsReader() io.Reader {
 }
 
 func main() {
-	spew.Dump(NewServiceConfigs(NewServiceConfigsReader()))
+	NewServiceConfigs(NewServiceConfigsReader(), "../configs/base.yml", "../configs/development.yml")
+
+	spew.Dump(viper.GetString("enable_debug"))
 	// rttl, err := strconv.Atoi(os.Getenv("SERVICE_REGISTERTTL"))
 	// if err != nil {
 	// 	panic(fmt.Sprintf("Error while booting service: %s", err.Error()))
