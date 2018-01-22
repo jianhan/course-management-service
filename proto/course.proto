@@ -13,6 +13,10 @@ message Course {
 	string name = 2;
 	google.protobuf.Timestamp start = 3;
 	google.protobuf.Timestamp end = 4;
+	
+	google.protobuf.Timestamp created_at = 5;
+	google.protobuf.Timestamp updated_at = 6;
+
 }
 
 message AddCourseRequest {
