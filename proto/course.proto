@@ -11,12 +11,11 @@ service CourseManager {
 message Course {
 	string id = 1;
 	string name = 2;
-	google.protobuf.Timestamp start = 3;
-	google.protobuf.Timestamp end = 4;
-	
-	google.protobuf.Timestamp created_at = 5;
-	google.protobuf.Timestamp updated_at = 6;
-
+	string description = 3;
+	google.protobuf.Timestamp start = 4;
+	google.protobuf.Timestamp end = 5;
+	google.protobuf.Timestamp created_at = 6;
+	google.protobuf.Timestamp updated_at = 7;
 }
 
 message AddCourseRequest {
