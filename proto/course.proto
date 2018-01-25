@@ -5,7 +5,7 @@ package go.micro.srv.course;
 import "google/protobuf/timestamp.proto";
 
 service CourseManager {
-	rpc Add(AddCourseRequest) returns (AddCourseResponse) {}
+	rpc Add(Course) returns (AddCourseResponse) {}
 }
 
 message Course {
