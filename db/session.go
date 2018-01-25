@@ -10,5 +10,6 @@ func NewMongodSession(url string) (*mgo.Session, error) {
 	if err != nil {
 		return nil, err
 	}
+	s.SetMode(mgo.Monotonic, true)
 	return s, nil
 }
