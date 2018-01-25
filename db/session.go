@@ -5,14 +5,10 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
-func NewMongodSession() (*mgo.Session, func(), error) {
-	closeFunc := func() {}
-	db, err := mgo.Dial(viper.GetString("mongo.url"))
+func NewMongodSession(url string) (*mgo.Session, error) {
+	s, err := mgo.Dial(viper.GetString("mongo.url"))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	closeFunc = func() {
-		db.Close()
-	}
-	return db, closeFunc, nil
+	return s, nil
 }
