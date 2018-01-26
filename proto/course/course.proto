@@ -3,9 +3,11 @@ syntax = "proto3";
 package go.micro.srv.course;
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 service CourseManager {
 	rpc Create(Course) returns (CreateCourseResponse) {}
+	rpc Courses(google.protobuf.Empty) returns (CoursesResponse) {}
 }
 
 message Course {
@@ -20,4 +22,8 @@ message Course {
 
 message CreateCourseResponse {
 	string msg = 1;
+}
+
+message CoursesResponse {
+		repeated Course courses = 1;
 }

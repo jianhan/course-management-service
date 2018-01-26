@@ -15,7 +15,7 @@ type CourseRepository interface {
 	CreateCourses(courses []*pb.Course) error
 	UpdateCourses(courses []*pb.Course) error
 	DeleteCourses(courses []*pb.Course) error
-	GetCourses() error
+	GetCourses() ([]*pb.Course, error)
 	Close()
 }
 
@@ -44,8 +44,12 @@ func (c *Course) DeleteCourses(courses []*pb.Course) error {
 	return nil
 }
 
-func (c *Course) GetCourses() error {
-	return nil
+func (c *Course) GetCourses() ([]*pb.Course, error) {
+	var courses []*pb.Course
+	if err := c.Session.DB(dbName).C(coursesCollection).Find(nil).All(&courses); err != nil {
+		return nil, err
+	}
+	return courses, nil
 }
 
 func (c *Course) Close() {
