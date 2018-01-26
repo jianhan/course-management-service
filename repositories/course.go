@@ -11,7 +11,7 @@ const (
 )
 
 type CourseRepository interface {
-	AddCourses(courses []*pb.Course) error
+	CreateCourses(courses []*pb.Course) error
 	UpdateCourses(courses []*pb.Course) error
 	DeleteCourses(courses []*pb.Course) error
 	GetCourses() error
@@ -22,11 +22,14 @@ type Course struct {
 	session *mgo.Session
 }
 
-func (c *Course) AddCourses(courses []*pb.Course) error {
-	return nil
+func (c *Course) CreateCourses(courses []*pb.Course) error {
+	return c.collection().Insert(courses)
 }
 
 func (c *Course) UpdateCourses(courses []*pb.Course) error {
+	for _, v := range courses {
+		c.collection().UpdateId(v.Id, v)
+	}
 	return nil
 }
 
