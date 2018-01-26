@@ -9,7 +9,7 @@ service CourseManager {
 }
 
 message Course {
-	bytes _id = 1; //`json:"_id,omitempty"   xml:"id,omitempty"`
+	bytes _id = 1;
 	string name = 2;
 	string description = 3;
 	google.protobuf.Timestamp start = 4;

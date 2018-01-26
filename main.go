@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/jianhan/course-management-service/handlers"
-	pb "github.com/jianhan/course-management-service/proto"
+	pb "github.com/jianhan/course-management-service/proto/course"
 	cfgreader "github.com/jianhan/pkg/configs"
 	jmongod "github.com/jianhan/pkg/mongod"
 	micro "github.com/micro/go-micro"
