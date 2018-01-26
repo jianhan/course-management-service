@@ -1,13 +1,14 @@
 package repositories
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	pb "github.com/jianhan/course-management-service/proto"
 	mgo "gopkg.in/mgo.v2"
 )
 
 const (
-	dbName           = "course-management-service"
-	vesselCollection = "courses"
+	dbName            = "course-management-service"
+	coursesCollection = "courses"
 )
 
 type CourseRepository interface {
@@ -23,7 +24,13 @@ type Course struct {
 }
 
 func (c *Course) CreateCourses(courses []*pb.Course) error {
-	return c.collection().Insert(courses)
+	for _, v := range courses {
+		err := c.collection().Insert(v)
+		if err != nil {
+			spew.Dump(err)
+		}
+	}
+	return nil
 }
 
 func (c *Course) UpdateCourses(courses []*pb.Course) error {
@@ -46,5 +53,5 @@ func (c *Course) Close() {
 }
 
 func (c *Course) collection() *mgo.Collection {
-	return c.Session.DB(dbName).C(vesselCollection)
+	return c.Session.DB(dbName).C(coursesCollection)
 }
