@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 
-	pb "github.com/jianhan/course-management-service/proto"
+	pcourse "github.com/jianhan/course-management-service/proto/course"
 	rp "github.com/jianhan/course-management-service/repositories"
 	mgo "gopkg.in/mgo.v2"
 )
@@ -16,9 +16,8 @@ func (c *CourseManagement) GetRepo() rp.CourseRepository {
 	return &rp.Course{Session: c.Session.Clone()}
 }
 
-func (c *CourseManagement) Create(ctx context.Context, course *pb.Course, rsp *pb.CreateCourseResponse) error {
+func (c *CourseManagement) Create(ctx context.Context, course *pcourse.Course, rsp *pcourse.CreateCourseResponse) error {
 	repo := c.GetRepo()
 	defer repo.Close()
-	repo.CreateCourses([]*pb.Course{course})
-	return nil
+	return repo.CreateCourses([]*pcourse.Course{course})
 }

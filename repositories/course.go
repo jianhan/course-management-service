@@ -2,8 +2,8 @@ package repositories
 
 import (
 	"github.com/davecgh/go-spew/spew"
-	pb "github.com/jianhan/course-management-service/proto"
-	mgo "gopkg.in/mgo.v2"
+	pb "github.com/jianhan/course-management-service/proto/course"
+	jmongod "github.com/jianhan/pkg/mongod"
 )
 
 const (
@@ -20,12 +20,12 @@ type CourseRepository interface {
 }
 
 type Course struct {
-	Session *mgo.Session
+	jmongod.MRepository
 }
 
 func (c *Course) CreateCourses(courses []*pb.Course) error {
 	for _, v := range courses {
-		err := c.collection().Insert(v)
+		err := c.Collection(dbName, coursesCollection).Insert(v)
 		if err != nil {
 			spew.Dump(err)
 		}
@@ -35,7 +35,7 @@ func (c *Course) CreateCourses(courses []*pb.Course) error {
 
 func (c *Course) UpdateCourses(courses []*pb.Course) error {
 	for _, v := range courses {
-		c.collection().UpdateId(v.Id, v)
+		c.Collection(dbName, coursesCollection).UpdateId(v.XId, v)
 	}
 	return nil
 }
@@ -46,12 +46,4 @@ func (c *Course) DeleteCourses(courses []*pb.Course) error {
 
 func (c *Course) GetCourses() error {
 	return nil
-}
-
-func (c *Course) Close() {
-	c.Session.Close()
-}
-
-func (c *Course) collection() *mgo.Collection {
-	return c.Session.DB(dbName).C(coursesCollection)
 }
