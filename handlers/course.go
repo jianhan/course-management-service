@@ -3,15 +3,22 @@ package handlers
 import (
 	"context"
 
-	proto "github.com/jianhan/course-management-service/proto"
+	pb "github.com/jianhan/course-management-service/proto"
+	rp "github.com/jianhan/course-management-service/repositories"
 	mgo "gopkg.in/mgo.v2"
 )
 
-type CourseManager struct {
-	session *mgo.Session
+type CourseManagement struct {
+	Session *mgo.Session
 }
 
-func (c *CourseManager) Add(ctx context.Context, req *proto.AddCourseRequest, rsp *proto.AddCourseResponse) error {
-	rsp.Msg = "test"
+func (c *CourseManagement) GetRepo() rp.CourseRepository {
+	return &rp.Course{Session: c.Session.Clone()}
+}
+
+func (c *CourseManagement) Create(ctx context.Context, course *pb.Course, rsp *pb.CreateCourseResponse) error {
+	repo := c.GetRepo()
+	defer repo.Close()
+	repo.CreateCourses([]*pb.Course{course})
 	return nil
 }

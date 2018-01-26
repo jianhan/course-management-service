@@ -8,11 +8,18 @@ import (
 	"github.com/jianhan/course-management-service/handlers"
 	pb "github.com/jianhan/course-management-service/proto"
 	cfgreader "github.com/jianhan/pkg/configs"
+	jmongod "github.com/jianhan/pkg/mongod"
 	micro "github.com/micro/go-micro"
 	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	session, err := jmongod.CreateSession("localhost")
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
 	serviceConfigs, err := cfgreader.NewReader(os.Getenv("ENV")).Read()
 	if err != nil {
 		panic(fmt.Sprintf("error while reading configurations: %s", err.Error()))
@@ -25,7 +32,7 @@ func main() {
 		micro.Metadata(serviceConfigs.Metadata),
 	)
 	srv.Init()
-	pb.RegisterCourseManagerHandler(srv.Server(), new(handlers.CourseManager))
+	pb.RegisterCourseManagerHandler(srv.Server(), &handlers.CourseManagement{Session: session})
 	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}

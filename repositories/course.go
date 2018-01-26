@@ -15,11 +15,11 @@ type CourseRepository interface {
 	UpdateCourses(courses []*pb.Course) error
 	DeleteCourses(courses []*pb.Course) error
 	GetCourses() error
-	Close() *mgo.Session
+	Close()
 }
 
 type Course struct {
-	session *mgo.Session
+	Session *mgo.Session
 }
 
 func (c *Course) CreateCourses(courses []*pb.Course) error {
@@ -42,9 +42,9 @@ func (c *Course) GetCourses() error {
 }
 
 func (c *Course) Close() {
-	c.session.Close()
+	c.Session.Close()
 }
 
 func (c *Course) collection() *mgo.Collection {
-	return c.session.DB(dbName).C(vesselCollection)
+	return c.Session.DB(dbName).C(vesselCollection)
 }
