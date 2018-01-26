@@ -35,7 +35,7 @@ func (c *Course) CreateCourses(courses []*pb.Course) error {
 
 func (c *Course) UpdateCourses(courses []*pb.Course) error {
 	for _, v := range courses {
-		c.Collection(dbName, coursesCollection).UpdateId(v.XId, v)
+		c.Collection(dbName, coursesCollection).UpdateId(v.Id, v)
 	}
 	return nil
 }
