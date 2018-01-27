@@ -1,5 +1,5 @@
 hash: 6432bdd67deda7cfdeb8591c004492205e502b6a7fa21cc35e2d8d1228306bf4
-updated: 2018-01-28T01:16:00.575073739+10:00
+updated: 2018-01-28T02:05:11.051108562+10:00
 imports:
 - name: github.com/armon/go-metrics
   version: 7aa49fde808223f8dadfdbfd3a20ff6c19e5f9ec
@@ -21,6 +21,7 @@ imports:
   version: 925541529c1fa6821df4e44ce2723319eb2be768
   subpackages:
   - proto
+  - protoc-gen-go/descriptor
   - ptypes
   - ptypes/any
   - ptypes/duration

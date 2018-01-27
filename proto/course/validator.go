@@ -1,4 +1,4 @@
-package go_micro_srv_course
+package course
 
 import (
 	"fmt"

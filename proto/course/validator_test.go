@@ -1,4 +1,4 @@
-package go_micro_srv_course_test
+package course_test
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/bxcodec/faker"
 	"github.com/gosimple/slug"
 	pb "github.com/jianhan/course-management-service/proto/course"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -96,7 +96,7 @@ func TestUpsertCoursesRequest_Validate(t *testing.T) {
 			fields: fields{
 				Courses: []*pb.Course{
 					&pb.Course{
-						Id:          uuid.Must(uuid.NewV4()).String(),
+						Id:          uuid.Must(uuid.NewV4(), nil).String(),
 						Slug:        "test-slug",
 						Description: "test description",
 					},
@@ -109,7 +109,7 @@ func TestUpsertCoursesRequest_Validate(t *testing.T) {
 			fields: fields{
 				Courses: []*pb.Course{
 					&pb.Course{
-						Id:   uuid.Must(uuid.NewV4()).String(),
+						Id:   uuid.Must(uuid.NewV4(), nil).String(),
 						Name: "test name",
 						Slug: "test-slug",
 					},
@@ -159,7 +159,7 @@ func generateValidCourses(num int, withEmptySlug bool, withEmptyID bool) []*pb.C
 	for i := 0; i < num; i++ {
 		c := pb.Course{}
 		faker.FakeData(&c)
-		c.Id = uuid.Must(uuid.NewV4()).String()
+		c.Id = uuid.Must(uuid.NewV4(), nil).String()
 		if withEmptySlug {
 			c.Slug = ""
 		} else {

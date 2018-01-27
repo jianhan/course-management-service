@@ -8,36 +8,19 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
+// CourseManagement handles all incomming request related to course.
 type CourseManagement struct {
 	Session *mgo.Session
 }
 
+// GetRepo retrieve an mongo db session instance.
 func (c *CourseManagement) GetRepo() rp.CourseRepository {
 	t := &rp.Course{}
 	t.Session = c.Session.Clone()
 	return t
 }
 
-// func (c *CourseManagement) Create(ctx context.Context, course *pcourse.Course, rsp *pcourse.CreateCourseResponse) error {
-// 	repo := c.GetRepo()
-// 	defer repo.Close()
-// 	return repo.CreateCourses([]*pcourse.Course{course})
-// }
-
-// func (c *CourseManagement) Courses(ctx context.Context, _ *gpb.Empty, rsp *pcourse.CoursesResponse) error {
-// 	repo := c.GetRepo()
-// 	defer repo.Close()
-// 	courses, err := repo.GetCourses()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	for _, v := range courses {
-// 		spew.Dump(bson.ObjectId(v.Id).Hex())
-// 	}
-// 	rsp.Courses = courses
-// 	return nil
-// }
-
+// UpsertCourses upsert multiply courses.
 func (c *CourseManagement) UpsertCourses(ctx context.Context, req *pcourse.UpsertCoursesRequest, rsp *pcourse.UpsertCoursesResponse) (err error) {
 	repo := c.GetRepo()
 	defer repo.Close()
