@@ -41,6 +41,9 @@ func (c *CourseManagement) GetRepo() rp.CourseRepository {
 func (c *CourseManagement) UpsertCourses(ctx context.Context, req *pcourse.UpsertCoursesRequest, rsp *pcourse.UpsertCoursesResponse) (err error) {
 	repo := c.GetRepo()
 	defer repo.Close()
+	if err := req.Validate(); err != nil {
+		return err
+	}
 	if rsp.Updated, rsp.Inserted, err = repo.UpsertCourses(req.Courses); err != nil {
 		return err
 	}
