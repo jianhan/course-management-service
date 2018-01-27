@@ -1,9 +1,9 @@
 package repositories
 
 import (
-	"github.com/davecgh/go-spew/spew"
+	"github.com/google/uuid"
 	pb "github.com/jianhan/course-management-service/proto/course"
-	mgo "gopkg.in/mgo.v2"
+	jmongod "github.com/jianhan/pkg/mongod"
 )
 
 const (
@@ -12,32 +12,37 @@ const (
 )
 
 type CourseRepository interface {
-	CreateCourses(courses []*pb.Course) error
-	UpdateCourses(courses []*pb.Course) error
+	UpsertCourses(courses []*pb.Course) (uint32, uint32, error)
 	DeleteCourses(courses []*pb.Course) error
 	GetCourses() ([]*pb.Course, error)
 	Close()
 }
 
 type Course struct {
-	Session *mgo.Session
+	jmongod.MRepository
 }
 
-func (c *Course) CreateCourses(courses []*pb.Course) error {
+func (c *Course) UpsertCourses(courses []*pb.Course) (uint32, uint32, error) {
+	var updated, inserted uint32
 	for _, v := range courses {
-		err := c.Collection(dbName, coursesCollection).Insert(v)
+		if v.Id == "" {
+			tmpId, err := uuid.NewUUID()
+			if err != nil {
+				return 0, 0, nil
+			}
+			v.Id = tmpId.String()
+		}
+		info, err := c.Session.DB(dbName).C(coursesCollection).UpsertId(v.Id, v)
 		if err != nil {
-			spew.Dump(err)
+			return 0, 0, nil
+		}
+		if info.Updated > 0 {
+			updated++
+		} else {
+			inserted++
 		}
 	}
-	return nil
-}
-
-func (c *Course) UpdateCourses(courses []*pb.Course) error {
-	for _, v := range courses {
-		c.Collection(dbName, coursesCollection).UpdateId(v.Id, v)
-	}
-	return nil
+	return updated, inserted, nil
 }
 
 func (c *Course) DeleteCourses(courses []*pb.Course) error {
@@ -50,12 +55,4 @@ func (c *Course) GetCourses() ([]*pb.Course, error) {
 		return nil, err
 	}
 	return courses, nil
-}
-
-func (c *Course) Close() {
-	c.Session.Close()
-}
-
-func (c *Course) Collection(dbName, collection string) *mgo.Collection {
-	return c.Session.DB(dbName).C(collection)
 }

@@ -3,28 +3,41 @@ syntax = "proto3";
 package go.micro.srv.course;
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
 
 service CourseManager {
-	rpc Create(Course) returns (CreateCourseResponse) {}
-	rpc Courses(google.protobuf.Empty) returns (CoursesResponse) {}
+	rpc UpsertCourses(UpsertCoursesRequest) returns (UpsertCoursesResponse) {}
 }
 
 message Course {
 	// @inject_tag: bson:"_id,omitempty"
 	string id = 1;
+	// @inject_tag: validate:"required"
 	string name = 2;
-	string description = 3;
-	google.protobuf.Timestamp start = 4;
-	google.protobuf.Timestamp end = 5;
-	google.protobuf.Timestamp created_at = 6;
-	google.protobuf.Timestamp updated_at = 7;
+	// @inject_tag: validate:"required"
+	string slug = 3;
+	// @inject_tag: validate:"required"
+	string description = 4;
+	google.protobuf.Timestamp start = 5;
+	google.protobuf.Timestamp end = 6;
+	// @inject_tag: bson:"created_at"
+	google.protobuf.Timestamp created_at = 7;
+	// @inject_tag: bson:"updated_at"
+	google.protobuf.Timestamp updated_at = 8;
 }
 
-message CreateCourseResponse {
-	string msg = 1;
-}
-
-message CoursesResponse {
+message Courses {
 		repeated Course courses = 1;
+}
+
+message Result {
+	uint64 rows_effected = 1;
+}
+
+message UpsertCoursesRequest {
+	repeated Course courses = 1;
+}
+
+message UpsertCoursesResponse {
+	uint32  updated = 1;
+	uint32  inserted = 2;
 }
