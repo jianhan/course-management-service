@@ -7,6 +7,7 @@ import (
 
 	"github.com/jianhan/course-management-service/handlers"
 	pb "github.com/jianhan/course-management-service/proto/course"
+	"github.com/jianhan/course-management-service/repositories"
 	cfgreader "github.com/jianhan/pkg/configs"
 	jmongod "github.com/jianhan/pkg/mongod"
 	micro "github.com/micro/go-micro"
@@ -19,7 +20,7 @@ func main() {
 		panic(err)
 	}
 	defer session.Close()
-
+	repositories.Initialize(session, repositories.InitCourse)
 	serviceConfigs, err := cfgreader.NewReader(os.Getenv("ENV")).Read()
 	if err != nil {
 		panic(fmt.Sprintf("error while reading configurations: %s", err.Error()))

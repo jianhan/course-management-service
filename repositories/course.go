@@ -4,6 +4,7 @@ import (
 	pb "github.com/jianhan/course-management-service/proto/course"
 	jmongod "github.com/jianhan/pkg/mongod"
 	"github.com/satori/go.uuid"
+	mgo "gopkg.in/mgo.v2"
 )
 
 const (
@@ -51,4 +52,21 @@ func (c *Course) GetCourses() ([]*pb.Course, error) {
 		return nil, err
 	}
 	return courses, nil
+}
+
+var InitCourse RepoInitFunc = func(session *mgo.Session) {
+	s := session.Clone()
+	defer s.Close()
+	c := s.DB(dbName).C(coursesCollection)
+	index := mgo.Index{
+		Key:        []string{"slug"},
+		Unique:     true,
+		DropDups:   true,
+		Background: true,
+		Sparse:     true,
+	}
+	err := c.EnsureIndex(index)
+	if err != nil {
+		panic(err)
+	}
 }

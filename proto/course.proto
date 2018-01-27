@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package go.micro.srv.course;
+
+import "google/protobuf/timestamp.proto";
+
+service CourseManager {
+	rpc Create(Course) returns (CreateCourseResponse) {}
+}
+
+message Course {
+	string id = 1;
+	string name = 2;
+	string description = 3;
+	google.protobuf.Timestamp start = 4;
+	google.protobuf.Timestamp end = 5;
+	google.protobuf.Timestamp created_at = 6;
+	google.protobuf.Timestamp updated_at = 7;
+}
+
+message CreateCourseResponse {
+	string msg = 1;
+}
