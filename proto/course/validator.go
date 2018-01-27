@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/asaskevich/govalidator"
+	"github.com/gosimple/slug"
 	structvalidator "gopkg.in/go-playground/validator.v9"
 )
 
@@ -21,6 +22,12 @@ func (r *UpsertCoursesRequest) Validate() error {
 	for _, v := range r.Courses {
 		if err := sv.Struct(v); err != nil {
 			return err
+		}
+		if v.Id != "" && !govalidator.IsUUID(v.Id) {
+			return fmt.Errorf("Invalid UUID: %s", v.Id)
+		}
+		if v.Slug == "" {
+			v.Slug = slug.Make(v.Name)
 		}
 	}
 	return nil

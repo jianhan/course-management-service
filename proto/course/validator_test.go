@@ -3,7 +3,9 @@ package go_micro_srv_course_test
 import (
 	"testing"
 
+	"github.com/bxcodec/faker"
 	pb "github.com/jianhan/course-management-service/proto/course"
+	uuid "github.com/satori/go.uuid"
 )
 
 func TestCourses_Validate(t *testing.T) {
@@ -71,6 +73,13 @@ func TestCourses_Validate(t *testing.T) {
 }
 
 func TestUpsertCoursesRequest_Validate(t *testing.T) {
+	validCourses := []*pb.Course{}
+	for i := 0; i <= 100; i++ {
+		c := pb.Course{}
+		faker.FakeData(&c)
+		c.Id = uuid.Must(uuid.NewV4()).String()
+		validCourses = append(validCourses, &c)
+	}
 	type fields struct {
 		Courses []*pb.Course
 	}
@@ -79,7 +88,66 @@ func TestUpsertCoursesRequest_Validate(t *testing.T) {
 		fields  fields
 		wantErr bool
 	}{
-	// TODO: Add test cases.
+		{
+			name: "all fields exists success",
+			fields: fields{
+				Courses: validCourses,
+			},
+			wantErr: false,
+		},
+		{
+			name: "missing name will fail",
+			fields: fields{
+				Courses: []*pb.Course{
+					&pb.Course{
+						Id:          uuid.Must(uuid.NewV4()).String(),
+						Slug:        "test-slug",
+						Description: "test description",
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "missing slug will fail",
+			fields: fields{
+				Courses: []*pb.Course{
+					&pb.Course{
+						Id:          uuid.Must(uuid.NewV4()).String(),
+						Name:        "test name",
+						Description: "test description",
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "missing description will fail",
+			fields: fields{
+				Courses: []*pb.Course{
+					&pb.Course{
+						Id:   uuid.Must(uuid.NewV4()).String(),
+						Name: "test name",
+						Slug: "test-slug",
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid uuid will fail",
+			fields: fields{
+				Courses: []*pb.Course{
+					&pb.Course{
+						Id:          "invalid uuid",
+						Name:        "test name",
+						Slug:        "test-slug",
+						Description: "test description",
+					},
+				},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
