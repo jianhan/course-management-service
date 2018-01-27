@@ -37,6 +37,9 @@ func (c *Course) UpsertCourses(courses []*pb.Course) (uint32, uint32, error) {
 			v.Id = uuid.Must(uuid.NewV4()).String()
 			v.CreatedAt = now
 		}
+		if v.CreatedAt == nil {
+			v.CreatedAt = now
+		}
 		v.UpdatedAt = now
 		info, err := c.Session.DB(dbName).C(coursesCollection).UpsertId(v.Id, v)
 		if err != nil {
