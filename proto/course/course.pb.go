@@ -43,8 +43,7 @@ type Course struct {
 	Id string `protobuf:"bytes,1,opt,name=id" json:"id,omitempty" bson:"_id,omitempty"`
 	// @inject_tag: validate:"required"
 	Name string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty" validate:"required"`
-	// @inject_tag: validate:"required"
-	Slug string `protobuf:"bytes,3,opt,name=slug" json:"slug,omitempty" validate:"required"`
+	Slug string `protobuf:"bytes,3,opt,name=slug" json:"slug,omitempty"`
 	// @inject_tag: validate:"required"
 	Description string                     `protobuf:"bytes,4,opt,name=description" json:"description,omitempty" validate:"required"`
 	Start       *google_protobuf.Timestamp `protobuf:"bytes,5,opt,name=start" json:"start,omitempty"`

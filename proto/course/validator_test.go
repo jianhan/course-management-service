@@ -4,8 +4,11 @@ import (
 	"testing"
 
 	"github.com/bxcodec/faker"
+	"github.com/gosimple/slug"
 	pb "github.com/jianhan/course-management-service/proto/course"
 	uuid "github.com/satori/go.uuid"
+	"github.com/stretchr/testify/assert"
+	"github.com/y0ssar1an/q"
 )
 
 func TestCourses_Validate(t *testing.T) {
@@ -73,13 +76,7 @@ func TestCourses_Validate(t *testing.T) {
 }
 
 func TestUpsertCoursesRequest_Validate(t *testing.T) {
-	validCourses := []*pb.Course{}
-	for i := 0; i <= 100; i++ {
-		c := pb.Course{}
-		faker.FakeData(&c)
-		c.Id = uuid.Must(uuid.NewV4()).String()
-		validCourses = append(validCourses, &c)
-	}
+	validCourses := generateValidCourses(1, false, true)
 	type fields struct {
 		Courses []*pb.Course
 	}
@@ -159,4 +156,33 @@ func TestUpsertCoursesRequest_Validate(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestUpsertCoursesRequest_ValidateAutoFillSlug(t *testing.T) {
+	upsertCoursesRequest := &pb.UpsertCoursesRequest{
+		Courses: generateValidCourses(1, true, true),
+	}
+	q.Q("BEFORE", upsertCoursesRequest)
+	upsertCoursesRequest.Validate()
+	q.Q("AFTER", upsertCoursesRequest)
+	for _, v := range upsertCoursesRequest.Courses {
+		assert.Equal(t, slug.Make(v.Name), v.Slug)
+	}
+}
+
+func generateValidCourses(num int, withEmptySlug bool, withEmptyID bool) []*pb.Course {
+	validCourses := []*pb.Course{}
+	for i := 0; i < num; i++ {
+		c := pb.Course{}
+		faker.FakeData(&c)
+		c.Id = uuid.Must(uuid.NewV4()).String()
+		if withEmptySlug {
+			c.Slug = ""
+		}
+		if withEmptyID {
+			c.Id = ""
+		}
+		validCourses = append(validCourses, &c)
+	}
+	return validCourses
 }

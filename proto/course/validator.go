@@ -19,15 +19,22 @@ func (c *Courses) Validate() error {
 
 func (r *UpsertCoursesRequest) Validate() error {
 	sv := structvalidator.New()
-	for _, v := range r.Courses {
+	for k, v := range r.Courses {
 		if err := sv.Struct(v); err != nil {
 			return err
 		}
+		// if id is not empty, and it is not a valid UUID, throw error.
 		if v.Id != "" && !govalidator.IsUUID(v.Id) {
 			return fmt.Errorf("Invalid UUID: %s", v.Id)
 		}
-		if v.Slug == "" {
-			v.Slug = slug.Make(v.Name)
+		// if slug is not empty, regardless if it is insert or update, throw error.
+		if v.Slug != "" && !slug.IsSlug(v.Slug) {
+			return fmt.Errorf("Invalid slug: %s", v.Slug)
+		}
+		// if id is empty, means it is an insert, and slug is empty too then
+		// automatically generate one based on name.
+		if v.Id == "" && v.Slug == "" {
+			r.Courses[k].Slug = slug.Make(v.Name)
 		}
 	}
 	return nil
