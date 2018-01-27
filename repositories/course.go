@@ -61,8 +61,8 @@ var InitCourse RepoInitFunc = func(session *mgo.Session) {
 	index := mgo.Index{
 		Key:        []string{"slug"},
 		Unique:     true,
-		DropDups:   true,
-		Background: true,
+		DropDups:   false,
+		Background: false,
 		Sparse:     true,
 	}
 	err := c.EnsureIndex(index)
