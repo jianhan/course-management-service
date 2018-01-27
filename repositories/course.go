@@ -1,9 +1,9 @@
 package repositories
 
 import (
-	"github.com/google/uuid"
 	pb "github.com/jianhan/course-management-service/proto/course"
 	jmongod "github.com/jianhan/pkg/mongod"
+	"github.com/satori/go.uuid"
 )
 
 const (
@@ -26,11 +26,7 @@ func (c *Course) UpsertCourses(courses []*pb.Course) (uint32, uint32, error) {
 	var updated, inserted uint32
 	for _, v := range courses {
 		if v.Id == "" {
-			tmpId, err := uuid.NewUUID()
-			if err != nil {
-				return 0, 0, nil
-			}
-			v.Id = tmpId.String()
+			v.Id = uuid.Must(uuid.NewV4()).String()
 		}
 		info, err := c.Session.DB(dbName).C(coursesCollection).UpsertId(v.Id, v)
 		if err != nil {
