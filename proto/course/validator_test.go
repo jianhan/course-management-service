@@ -8,7 +8,6 @@ import (
 	pb "github.com/jianhan/course-management-service/proto/course"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/y0ssar1an/q"
 )
 
 func TestCourses_Validate(t *testing.T) {
@@ -106,19 +105,6 @@ func TestUpsertCoursesRequest_Validate(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "missing slug will fail",
-			fields: fields{
-				Courses: []*pb.Course{
-					&pb.Course{
-						Id:          uuid.Must(uuid.NewV4()).String(),
-						Name:        "test name",
-						Description: "test description",
-					},
-				},
-			},
-			wantErr: true,
-		},
-		{
 			name: "missing description will fail",
 			fields: fields{
 				Courses: []*pb.Course{
@@ -162,9 +148,7 @@ func TestUpsertCoursesRequest_ValidateAutoFillSlug(t *testing.T) {
 	upsertCoursesRequest := &pb.UpsertCoursesRequest{
 		Courses: generateValidCourses(1, true, true),
 	}
-	q.Q("BEFORE", upsertCoursesRequest)
 	upsertCoursesRequest.Validate()
-	q.Q("AFTER", upsertCoursesRequest)
 	for _, v := range upsertCoursesRequest.Courses {
 		assert.Equal(t, slug.Make(v.Name), v.Slug)
 	}
@@ -178,6 +162,8 @@ func generateValidCourses(num int, withEmptySlug bool, withEmptyID bool) []*pb.C
 		c.Id = uuid.Must(uuid.NewV4()).String()
 		if withEmptySlug {
 			c.Slug = ""
+		} else {
+			c.Slug = slug.Make(c.Name)
 		}
 		if withEmptyID {
 			c.Id = ""

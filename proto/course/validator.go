@@ -31,9 +31,8 @@ func (r *UpsertCoursesRequest) Validate() error {
 		if v.Slug != "" && !slug.IsSlug(v.Slug) {
 			return fmt.Errorf("Invalid slug: %s", v.Slug)
 		}
-		// if id is empty, means it is an insert, and slug is empty too then
-		// automatically generate one based on name.
-		if v.Id == "" && v.Slug == "" {
+		// if slug is empty then automatically generate one based on name.
+		if v.Slug == "" {
 			r.Courses[k].Slug = slug.Make(v.Name)
 		}
 	}
