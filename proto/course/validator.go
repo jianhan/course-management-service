@@ -8,6 +8,7 @@ import (
 	structvalidator "gopkg.in/go-playground/validator.v9"
 )
 
+// Validate checks if any id presented within courses are all valid.
 func (c *Courses) Validate() error {
 	for _, v := range c.Courses {
 		if v.Id != "" && !govalidator.IsUUID(v.Id) {
@@ -17,6 +18,7 @@ func (c *Courses) Validate() error {
 	return nil
 }
 
+// Validate checks if any invalid slugs or any invalid UUIDs.
 func (r *UpsertCoursesRequest) Validate() error {
 	sv := structvalidator.New()
 	for k, v := range r.Courses {
