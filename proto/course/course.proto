@@ -6,6 +6,7 @@ import "google/protobuf/timestamp.proto";
 
 service CourseManager {
 	rpc UpsertCourses(UpsertCoursesRequest) returns (UpsertCoursesResponse) {}
+	rpc GetCoursesByFilters(GetCoursesByFiltersRequest) returns (GetCoursesByFiltersResponse) {}
 }
 
 message Course {
@@ -16,12 +17,13 @@ message Course {
 	string slug = 3;
 	// @inject_tag: validate:"required"
 	string description = 4;
-	google.protobuf.Timestamp start = 5;
-	google.protobuf.Timestamp end = 6;
+	bool visible = 5;
+	google.protobuf.Timestamp start = 6;
+	google.protobuf.Timestamp end = 7;
 	// @inject_tag: bson:"created_at"
-	google.protobuf.Timestamp created_at = 7;
+	google.protobuf.Timestamp created_at = 8;
 	// @inject_tag: bson:"updated_at"
-	google.protobuf.Timestamp updated_at = 8;
+	google.protobuf.Timestamp updated_at = 9;
 }
 
 message Courses {
@@ -39,4 +41,18 @@ message UpsertCoursesRequest {
 message UpsertCoursesResponse {
 	uint32  updated = 1;
 	uint32  inserted = 2;
+}
+
+message GetCoursesByFiltersRequest {
+
+}
+
+message GetCoursesByFiltersResponse {
+
+}
+
+message FilterSet {
+	repeated ids = 1;
+	google.protobuf.Timestamp start = 2;
+	google.protobuf.Timestamp end = 3;
 }

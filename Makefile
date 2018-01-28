@@ -18,7 +18,7 @@ Q = $(if $(filter 1,$V),,@)
 M = $(shell printf "\033[34;1m▶\033[0m")
 
 .PHONY: all
-all: fmt lint vendor | $(BASE) ; $(info $(M) building executable…) @ ## Build program binary
+all: clean fmt lint vendor test| $(BASE) ; $(info $(M) building executable…) @ ## Build program binary
 	$Q cd $(BASE) && $(GO) build \
 		-tags release \
 		-ldflags '-X $(PACKAGE)/cmd.Version=$(VERSION) -X $(PACKAGE)/cmd.BuildDate=$(DATE)' \
@@ -50,8 +50,11 @@ GO2XUNIT = $(BIN)/go2xunit
 $(BIN)/go2xunit: | $(BASE) ; $(info $(M) building go2xunit…)
 	$Q go get github.com/tebeka/go2xunit
 
-# Tests
+GOMETALINTER = $(BIN)/gometalinter
+$(BIN)/gometalinter: | $(BASE) ; $(info $(M) building gometalinter…)
+	$Q go get github.com/alecthomas/gometalinter
 
+# Tests
 TEST_TARGETS := test-default test-bench test-short test-verbose test-race
 .PHONY: $(TEST_TARGETS) test-xml check test tests
 test-bench:   ARGS=-run=__absolutelynothing__ -bench=. ## Run benchmarks
@@ -93,6 +96,10 @@ lint: vendor | $(BASE) $(GOLINT) ; $(info $(M) running golint…) @ ## Run golin
 	$Q cd $(BASE) && ret=0 && for pkg in $(PKGS); do \
 		test -z "$$($(GOLINT) $$pkg | tee /dev/stderr)" || ret=1 ; \
 	 done ; exit $$ret
+
+.PHONY: const
+gometalinter: fmt lint vendor | $(BASE) $(GOMETALINTER) ; $(info $(M) running $(NAME:%=% )gometalinter…) @
+	$Q cd $(BASE) && $(GOMETALINTER) handlers configs repositories proto
 
 .PHONY: fmt
 fmt: ; $(info $(M) running gofmt…) @ ## Run gofmt on all source files
