@@ -20,7 +20,7 @@ const (
 type CourseRepository interface {
 	UpsertCourses(courses []*pb.Course) (uint32, uint32, error)
 	DeleteCourses(courses []*pb.Course) error
-	GetCoursesByFilters(filterSet *pb.GetCoursesByFiltersRequest) ([]*pb.Course, error)
+	GetCoursesByFilters(filterSet *pb.FilterSet) ([]*pb.Course, error)
 	Close()
 }
 

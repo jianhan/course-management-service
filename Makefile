@@ -4,6 +4,7 @@ VERSION ?= $(shell git describe --tags --always --dirty --match=v* 2> /dev/null 
 			cat $(CURDIR)/.version 2> /dev/null || echo v0)
 GOPATH   = $(CURDIR)/.gopath~
 BIN      = $(GOPATH)/bin
+BUILDBIN = ./bin/github.com/jianhan
 BASE     = $(GOPATH)/src/$(PACKAGE)
 PKGS     = $(or $(PKG),$(shell cd $(BASE) && env GOPATH=$(GOPATH) $(GO) list ./... | grep -v "^$(PACKAGE)/vendor/"))
 TESTPKGS = $(shell env GOPATH=$(GOPATH) $(GO) list -f '{{ if or .TestGoFiles .XTestGoFiles }}{{ .ImportPath }}{{ end }}' $(PKGS))
@@ -12,13 +13,14 @@ GO      = go
 GODOC   = godoc
 GOFMT   = gofmt
 GLIDE   = glide
+SERVICE = course-management-service
 TIMEOUT = 15
 V = 0
 Q = $(if $(filter 1,$V),,@)
 M = $(shell printf "\033[34;1m▶\033[0m")
 
 .PHONY: all
-all: clean fmt lint vendor test| $(BASE) ; $(info $(M) building executable…) @ ## Build program binary
+all: clean fmt lint vendor| $(BASE) ; $(info $(M) building executable…) @ ## Build program binary
 	$Q cd $(BASE) && $(GO) build \
 		-tags release \
 		-ldflags '-X $(PACKAGE)/cmd.Version=$(VERSION) -X $(PACKAGE)/cmd.BuildDate=$(DATE)' \
@@ -28,8 +30,19 @@ $(BASE): ; $(info $(M) setting GOPATH…)
 	@mkdir -p $(dir $@)
 	@ln -sf $(CURDIR) $@
 
-# Tools
+.PHONY: build
+build:
+	$Q cd $(BASE) && $(GO) build \
+		-tags release \
+		-ldflags '-X $(PACKAGE)/cmd.Version=$(VERSION) -X $(PACKAGE)/cmd.BuildDate=$(DATE)' \
+		-o bin/$(PACKAGE) main.go
 
+.PHONY: run
+run:
+	$(shell cp -R configs $(BUILDBIN)/)
+	$Q cd ${BUILDBIN} && ${SERVICE}
+
+# Tools
 GOLINT = $(BIN)/golint
 $(BIN)/golint: | $(BASE) ; $(info $(M) building golint…)
 	$Q go get github.com/golang/lint/golint

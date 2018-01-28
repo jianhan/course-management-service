@@ -24,11 +24,27 @@ func (c *CourseManagement) GetRepo() rp.CourseRepository {
 func (c *CourseManagement) UpsertCourses(ctx context.Context, req *pcourse.UpsertCoursesRequest, rsp *pcourse.UpsertCoursesResponse) (err error) {
 	repo := c.GetRepo()
 	defer repo.Close()
-	if err := req.Validate(); err != nil {
-		return err
+	if err = req.Validate(); err != nil {
+		return
 	}
 	if rsp.Updated, rsp.Inserted, err = repo.UpsertCourses(req.Courses); err != nil {
+		return
+	}
+	return
+}
+
+// GetCoursesByFilters retrieves courses by filters.
+func (c *CourseManagement) GetCoursesByFilters(ctx context.Context, req *pcourse.GetCoursesByFiltersRequest, rsp *pcourse.GetCoursesByFiltersResponse) (err error) {
+	repo := c.GetRepo()
+	defer repo.Close()
+	if rsp.Courses, err = repo.GetCoursesByFilters(req.FilterSet); err != nil {
 		return err
 	}
+	// if err = req.Validate(); err != nil {
+	// 	return
+	// }
+	// if rsp.Updated, rsp.Inserted, err = repo.UpsertCourses(req.Courses); err != nil {
+	// 	return
+	// }
 	return
 }

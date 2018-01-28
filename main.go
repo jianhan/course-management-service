@@ -15,6 +15,7 @@ import (
 )
 
 func main() {
+	// TODO: read from configs
 	session, err := jmongod.CreateSession("localhost")
 	if err != nil {
 		panic(err)
