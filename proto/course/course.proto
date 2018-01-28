@@ -44,15 +44,16 @@ message UpsertCoursesResponse {
 }
 
 message GetCoursesByFiltersRequest {
-
+	FilterSet filter_set = 1;
 }
 
 message GetCoursesByFiltersResponse {
-
+	repeated Course courses = 1;
 }
 
 message FilterSet {
-	repeated ids = 1;
+	repeated string ids = 1;
 	google.protobuf.Timestamp start = 2;
 	google.protobuf.Timestamp end = 3;
+	bool visible = 4;
 }

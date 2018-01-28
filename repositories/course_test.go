@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"reflect"
 	"testing"
 
 	pb "github.com/jianhan/course-management-service/proto/course"
@@ -54,29 +53,6 @@ func TestCourse_DeleteCourses(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := tt.c.DeleteCourses(tt.args.courses); (err != nil) != tt.wantErr {
 				t.Errorf("Course.DeleteCourses() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-func TestCourse_GetCourses(t *testing.T) {
-	tests := []struct {
-		name    string
-		c       *Course
-		want    []*pb.Course
-		wantErr bool
-	}{
-	// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.c.GetCourses()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Course.GetCourses() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Course.GetCourses() = %v, want %v", got, tt.want)
 			}
 		})
 	}

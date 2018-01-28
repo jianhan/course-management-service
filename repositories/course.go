@@ -8,6 +8,7 @@ import (
 	jmongod "github.com/jianhan/pkg/mongod"
 	"github.com/satori/go.uuid"
 	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const (
@@ -19,7 +20,7 @@ const (
 type CourseRepository interface {
 	UpsertCourses(courses []*pb.Course) (uint32, uint32, error)
 	DeleteCourses(courses []*pb.Course) error
-	GetCourses() ([]*pb.Course, error)
+	GetCoursesByFilters(filterSet *pb.GetCoursesByFiltersRequest) ([]*pb.Course, error)
 	Close()
 }
 
@@ -62,10 +63,21 @@ func (c *Course) DeleteCourses(courses []*pb.Course) error {
 	return nil
 }
 
-// GetCourses retrieves courses.
-func (c *Course) GetCourses() ([]*pb.Course, error) {
+// GetCoursesByFilters retrieves courses.
+func (c *Course) GetCoursesByFilters(filterSet *pb.FilterSet) ([]*pb.Course, error) {
+	var queries []map[string]interface{}
+	queries = append(queries, bson.M{"visiable": filterSet.Visible})
+	if len(filterSet.Ids) > 0 {
+		queries = append(queries, bson.M{"_id": bson.M{"$in": filterSet.Ids}})
+	}
+	if filterSet.Start != nil {
+		queries = append(queries, bson.M{"start": bson.M{"$lte": filterSet.Start}})
+	}
+	if filterSet.End != nil {
+		queries = append(queries, bson.M{"start": bson.M{"$gte": filterSet.End}})
+	}
 	var courses []*pb.Course
-	if err := c.Session.DB(dbName).C(coursesCollection).Find(nil).All(&courses); err != nil {
+	if err := c.Session.DB(dbName).C(coursesCollection).Find(bson.M{"$and": queries}).All(&courses); err != nil {
 		return nil, err
 	}
 	return courses, nil
