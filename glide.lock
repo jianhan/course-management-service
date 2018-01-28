@@ -1,5 +1,5 @@
 hash: 6432bdd67deda7cfdeb8591c004492205e502b6a7fa21cc35e2d8d1228306bf4
-updated: 2018-01-28T02:05:11.051108562+10:00
+updated: 2018-01-28T14:54:11.610555989+10:00
 imports:
 - name: github.com/armon/go-metrics
   version: 7aa49fde808223f8dadfdbfd3a20ff6c19e5f9ec
@@ -60,7 +60,7 @@ imports:
   subpackages:
   - coordinate
 - name: github.com/jianhan/pkg
-  version: e62a0935d4386ae80407514569d7e50a563e22c8
+  version: 04ea397ad1bd9490831a9e80cc5f7bd782c78a7c
   subpackages:
   - configs
   - mongod
@@ -138,7 +138,7 @@ imports:
 - name: github.com/spf13/viper
   version: aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5
 - name: golang.org/x/crypto
-  version: 0efb9460aaf800c6376acf625be2853bceac2e06
+  version: 1875d0a70c90e57f11972aefd42276df65e895b9
   subpackages:
   - ed25519
   - ed25519/internal/edwards25519
