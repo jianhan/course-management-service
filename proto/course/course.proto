@@ -1,6 +1,7 @@
 syntax = "proto3";
 
-package course;
+package go_micro_srv_course;
+option go_package = "course";
 
 import "google/protobuf/timestamp.proto";
 

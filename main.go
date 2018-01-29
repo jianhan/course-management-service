@@ -12,11 +12,12 @@ import (
 	jmongod "github.com/jianhan/pkg/mongod"
 	micro "github.com/micro/go-micro"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 func main() {
 	// TODO: read from configs
-	session, err := jmongod.CreateSession("localhost")
+	session, err := jmongod.CreateSession(viper.GetString("mongo.url"))
 	if err != nil {
 		panic(err)
 	}
