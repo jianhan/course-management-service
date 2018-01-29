@@ -88,14 +88,22 @@ var InitCourse RepoInitFunc = func(session *mgo.Session) {
 	s := session.Clone()
 	defer s.Close()
 	c := s.DB(dbName).C(coursesCollection)
-	index := mgo.Index{
+	// create unique index on slug
+	slugIndex := mgo.Index{
 		Key:        []string{"slug"},
 		Unique:     true,
 		DropDups:   false,
 		Background: false,
 		Sparse:     true,
 	}
-	err := c.EnsureIndex(index)
+	err := c.EnsureIndex(slugIndex)
+	if err != nil {
+		panic(err)
+	}
+	textIndex := mgo.Index{
+		Key: []string{"$text:name", "$text:description"},
+	}
+	err = c.EnsureIndex(textIndex)
 	if err != nil {
 		panic(err)
 	}

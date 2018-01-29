@@ -16,7 +16,6 @@ import (
 )
 
 func main() {
-	// TODO: read from configs
 	session, err := jmongod.CreateSession(viper.GetString("mongo.url"))
 	if err != nil {
 		panic(err)
