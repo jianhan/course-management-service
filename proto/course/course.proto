@@ -7,7 +7,7 @@ import "google/protobuf/timestamp.proto";
 
 service CourseManager {
 	rpc UpsertCourses(UpsertCoursesRequest) returns (UpsertCoursesResponse) {}
-	rpc GetCoursesByFilters(FilterSet) returns (GetCoursesByFiltersResponse) {}
+	rpc GetCoursesByFilters(GetCoursesByFiltersRequest) returns (GetCoursesByFiltersResponse) {}
 }
 
 message Course {
@@ -50,9 +50,19 @@ message GetCoursesByFiltersResponse {
 
 message FilterSet {
 	repeated string ids = 1;
-	string name_pattern = 2;
+	string text_search = 2;
 	repeated string names = 3;
-	google.protobuf.Timestamp start = 2;
-	google.protobuf.Timestamp end = 3;
-	bool visible = 4;
+	repeated string slugs = 4;
+	google.protobuf.Timestamp start = 5;
+	google.protobuf.Timestamp end = 6;
+	BoolField visible = 7;
+}
+
+message BoolField {
+	bool value = 1;
+	bool ignore = 2;
+}
+
+message GetCoursesByFiltersRequest {
+		FilterSet filter_set = 1;
 }
