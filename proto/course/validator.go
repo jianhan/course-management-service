@@ -1,10 +1,12 @@
 package course
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/gosimple/slug"
+	"github.com/jianhan/pkg/validation"
 	structvalidator "gopkg.in/go-playground/validator.v9"
 )
 
@@ -36,6 +38,24 @@ func (r *UpsertCoursesRequest) Validate() error {
 		// if slug is empty then automatically generate one based on name.
 		if v.Slug == "" {
 			r.Courses[k].Slug = slug.Make(v.Name)
+		}
+	}
+	return nil
+}
+
+// Validate performs validation for GetCoursesByFiltersRequest.
+func (r *GetCoursesByFiltersRequest) Validate() error {
+	if r.FilterSet == nil {
+		return errors.New("Filter set is empty")
+	}
+	if r.FilterSet.Ids != nil && len(r.FilterSet.Ids) > 0 {
+		if err := validation.ValidateSliceUUID(r.FilterSet.Ids); err != nil {
+			return err
+		}
+	}
+	if r.FilterSet.Slugs != nil && len(r.FilterSet.Slugs) > 0 {
+		if err := validation.ValidateSliceSlugs(r.FilterSet.Slugs); err != nil {
+			return err
 		}
 	}
 	return nil

@@ -38,6 +38,9 @@ func (c *CourseManagement) UpsertCourses(ctx context.Context, req *pcourse.Upser
 
 // GetCoursesByFilters retrieves courses by filters.
 func (c *CourseManagement) GetCoursesByFilters(ctx context.Context, req *pcourse.GetCoursesByFiltersRequest, rsp *pcourse.GetCoursesByFiltersResponse) (err error) {
+	if err = req.Validate(); err != nil {
+		return merrors.BadRequest(API+".GetCoursesByFilters", err.Error())
+	}
 	repo := c.GetRepo()
 	defer repo.Close()
 	if req.FilterSet == nil {
