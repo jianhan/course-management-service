@@ -89,27 +89,31 @@ func (c *Course) DeleteCourses(filterSet *pb.FilterSet) (uint32, error) {
 
 // GetCoursesByFilters retrieves courses.
 func (c *Course) GetCoursesByFilters(filterSet *pb.FilterSet) ([]*pb.Course, error) {
-	var queries []map[string]interface{}
+	var conditions []map[string]interface{}
 	if len(filterSet.Ids) > 0 {
-		queries = append(queries, bson.M{"_id": bson.M{"$in": filterSet.Ids}})
+		conditions = append(conditions, bson.M{"_id": bson.M{"$in": filterSet.Ids}})
 	}
 	if filterSet.Start != nil {
-		queries = append(queries, bson.M{"start": bson.M{"$lte": filterSet.Start}})
+		conditions = append(conditions, bson.M{"start": bson.M{"$lte": filterSet.Start}})
 	}
 	if filterSet.End != nil {
-		queries = append(queries, bson.M{"end": bson.M{"$gte": filterSet.End}})
+		conditions = append(conditions, bson.M{"end": bson.M{"$gte": filterSet.End}})
 	}
 	if len(filterSet.Names) > 0 {
-		queries = append(queries, bson.M{"name": bson.M{"$in": filterSet.Names}})
+		conditions = append(conditions, bson.M{"name": bson.M{"$in": filterSet.Names}})
 	}
 	if strings.TrimSpace(filterSet.TextSearch) != "" {
-		queries = append(queries, bson.M{"$text": bson.M{"$search": strings.TrimSpace(filterSet.TextSearch)}})
+		conditions = append(conditions, bson.M{"$text": bson.M{"$search": strings.TrimSpace(filterSet.TextSearch)}})
 	}
 	if filterSet.Visible != nil && !filterSet.Visible.Ignore {
-		queries = append(queries, bson.M{"visible": bson.M{"$eq": filterSet.Visible.Value}})
+		conditions = append(conditions, bson.M{"visible": bson.M{"$eq": filterSet.Visible.Value}})
+	}
+	var query interface{}
+	if len(conditions) > 0 {
+		query = bson.M{"$and": conditions}
 	}
 	var courses []*pb.Course
-	if err := c.Session.DB(dbName).C(coursesCollection).Find(bson.M{"$and": queries}).All(&courses); err != nil {
+	if err := c.Session.DB(dbName).C(coursesCollection).Find(query).All(&courses); err != nil {
 		return nil, err
 	}
 	return courses, nil
