@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 
-	"github.com/davecgh/go-spew/spew"
 	pcourse "github.com/jianhan/course-management-service/proto/course"
 	rp "github.com/jianhan/course-management-service/repositories"
 	merrors "github.com/micro/go-micro/errors"
@@ -28,13 +27,12 @@ func (c *CourseManagement) GetRepo() rp.CourseRepository {
 func (c *CourseManagement) UpsertCourses(ctx context.Context, req *pcourse.UpsertCoursesRequest, rsp *pcourse.UpsertCoursesResponse) (err error) {
 	repo := c.GetRepo()
 	defer repo.Close()
-	spew.Dump(req)
-	// if err = req.Validate(); err != nil {
-	// 	return
-	// }
-	// if rsp.Updated, rsp.Inserted, err = repo.UpsertCourses(req.Courses); err != nil {
-	// 	return
-	// }
+	if err = req.Validate(); err != nil {
+		return merrors.BadRequest(API+".GetCoursesByFilters", err.Error())
+	}
+	if rsp.Updated, rsp.Inserted, err = repo.UpsertCourses(req.Courses); err != nil {
+		return merrors.InternalServerError(API+".GetCoursesByFilters", err.Error())
+	}
 	return
 }
 
