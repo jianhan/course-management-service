@@ -8,7 +8,7 @@ import "google/protobuf/timestamp.proto";
 service CourseManager {
 	rpc UpsertCourses(UpsertCoursesRequest) returns (UpsertCoursesResponse) {}
 	rpc GetCoursesByFilters(GetCoursesByFiltersRequest) returns (GetCoursesByFiltersResponse) {}
-	rpc DeleteCourses(DeleteCoursesRequest) returns (DeleteCoursesResponse) {}
+	rpc DeleteCoursesByIDs(DeleteCoursesByIDsRequest) returns (DeleteCoursesByIDsResponse) {}
 }
 
 message Course {
@@ -82,10 +82,10 @@ message GetCoursesByFiltersRequest {
 	FilterSet filter_set = 1;
 }
 
-message DeleteCoursesRequest {
-	FilterSet filter_set = 1;
+message DeleteCoursesByIDsRequest {
+	repeated string ids = 1;
 }
 
-message DeleteCoursesResponse {
+message DeleteCoursesByIDsResponse {
 	uint32 removed = 1;
 }

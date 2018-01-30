@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 
+	"github.com/davecgh/go-spew/spew"
 	pcourse "github.com/jianhan/course-management-service/proto/course"
 	rp "github.com/jianhan/course-management-service/repositories"
 	merrors "github.com/micro/go-micro/errors"
@@ -53,18 +54,16 @@ func (c *CourseManagement) GetCoursesByFilters(ctx context.Context, req *pcourse
 	return
 }
 
-// DeleteCourses remove courses based on conditions in filter set.
-func (c *CourseManagement) DeleteCourses(ctx context.Context, req *pcourse.DeleteCoursesRequest, rsp *pcourse.DeleteCoursesResponse) (err error) {
+// DeleteCoursesByIDs remove courses by IDs.
+func (c *CourseManagement) DeleteCoursesByIDs(ctx context.Context, req *pcourse.DeleteCoursesByIDsRequest, rsp *pcourse.DeleteCoursesByIDsResponse) (err error) {
 	if err = req.Validate(); err != nil {
-		return merrors.BadRequest(API+".DeleteCourses", err.Error())
-	}
-	if req.FilterSet == nil {
-		return merrors.BadRequest(API+".DeleteCourses", "Empty filter set")
+		return merrors.BadRequest(API+".DeleteCoursesByIDs", err.Error())
 	}
 	repo := c.GetRepo()
 	defer repo.Close()
-	if rsp.Removed, err = repo.DeleteCourses(req.FilterSet); err != nil {
-		return merrors.BadRequest(API+".DeleteCourses", err.Error())
+	if rsp.Removed, err = repo.DeleteCoursesByIDs(req.Ids); err != nil {
+		return merrors.BadRequest(API+".DeleteCoursesByIDs", err.Error())
 	}
+	spew.Dump(rsp)
 	return
 }

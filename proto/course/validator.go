@@ -52,11 +52,11 @@ func (r *GetCoursesByFiltersRequest) Validate() error {
 }
 
 // Validate perform validations up on deleting courses request.
-func (r *DeleteCoursesRequest) Validate() error {
-	if r.FilterSet == nil {
-		return errors.New("Filter set is empty while deleting courses")
+func (r *DeleteCoursesByIDsRequest) Validate() error {
+	if len(r.Ids) == 0 {
+		return errors.New("IDs can not be empty while deleting courses")
 	}
-	return r.FilterSet.Validate()
+	return nil
 }
 
 // Validate performs validation on filterSet.
