@@ -9,6 +9,7 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
+// API is a constant to define the name of API.
 const API = "go_micro_srv_course"
 
 // CourseManagement handles all incomming request related to course.
@@ -41,13 +42,29 @@ func (c *CourseManagement) GetCoursesByFilters(ctx context.Context, req *pcourse
 	if err = req.Validate(); err != nil {
 		return merrors.BadRequest(API+".GetCoursesByFilters", err.Error())
 	}
-	repo := c.GetRepo()
-	defer repo.Close()
 	if req.FilterSet == nil {
 		return merrors.BadRequest(API+".GetCoursesByFilters", "Empty filter set")
 	}
+	repo := c.GetRepo()
+	defer repo.Close()
 	if rsp.Courses, err = repo.GetCoursesByFilters(req.FilterSet); err != nil {
 		return merrors.InternalServerError(API+".GetCoursesByFilters", err.Error())
+	}
+	return
+}
+
+// DeleteCourses remove courses based on conditions in filter set.
+func (c *CourseManagement) DeleteCourses(ctx context.Context, req *pcourse.DeleteCoursesRequest, rsp *pcourse.DeleteCoursesResponse) (err error) {
+	if err = req.Validate(); err != nil {
+		return merrors.BadRequest(API+".DeleteCourses", err.Error())
+	}
+	if req.FilterSet == nil {
+		return merrors.BadRequest(API+".DeleteCourses", "Empty filter set")
+	}
+	repo := c.GetRepo()
+	defer repo.Close()
+	if rsp.Removed, err = repo.DeleteCourses(req.FilterSet); err != nil {
+		return merrors.BadRequest(API+".DeleteCourses", err.Error())
 	}
 	return
 }

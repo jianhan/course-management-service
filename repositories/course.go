@@ -20,7 +20,7 @@ const (
 // CourseRepository contains collection of methods for repository.
 type CourseRepository interface {
 	UpsertCourses(courses []*pb.Course) (uint32, uint32, error)
-	DeleteCourses(courses []*pb.Course) error
+	DeleteCourses(filterSet *pb.FilterSet) (uint32, error)
 	GetCoursesByFilters(filterSet *pb.FilterSet) ([]*pb.Course, error)
 	Close()
 }
@@ -60,8 +60,31 @@ func (c *Course) UpsertCourses(courses []*pb.Course) (uint32, uint32, error) {
 }
 
 // DeleteCourses deletes multiply courses.
-func (c *Course) DeleteCourses(courses []*pb.Course) error {
-	return nil
+func (c *Course) DeleteCourses(filterSet *pb.FilterSet) (uint32, error) {
+	var queries []map[string]interface{}
+	if len(filterSet.Ids) > 0 {
+		queries = append(queries, bson.M{"_id": bson.M{"$in": filterSet.Ids}})
+	}
+	if filterSet.Start != nil {
+		queries = append(queries, bson.M{"start": bson.M{"$lte": filterSet.Start}})
+	}
+	if filterSet.End != nil {
+		queries = append(queries, bson.M{"end": bson.M{"$gte": filterSet.End}})
+	}
+	if len(filterSet.Names) > 0 {
+		queries = append(queries, bson.M{"name": bson.M{"$in": filterSet.Names}})
+	}
+	if strings.TrimSpace(filterSet.TextSearch) != "" {
+		queries = append(queries, bson.M{"$text": bson.M{"$search": strings.TrimSpace(filterSet.TextSearch)}})
+	}
+	if filterSet.Visible != nil && !filterSet.Visible.Ignore {
+		queries = append(queries, bson.M{"visible": bson.M{"$eq": filterSet.Visible.Value}})
+	}
+	changeInfo, err := c.Session.DB(dbName).C(coursesCollection).RemoveAll(queries)
+	if err != nil {
+		return 0, err
+	}
+	return uint32(changeInfo.Removed), nil
 }
 
 // GetCoursesByFilters retrieves courses.

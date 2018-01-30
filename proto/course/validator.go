@@ -46,12 +46,17 @@ func (r *UpsertCoursesRequest) Validate() error {
 // Validate performs validation for GetCoursesByFiltersRequest.
 func (r *GetCoursesByFiltersRequest) Validate() error {
 	if r.FilterSet == nil {
-		return errors.New("Filter set is empty")
+		return errors.New("Filter set is empty while fetching courses")
 	}
-	if err := r.FilterSet.Validate(); err != nil {
-		return err
+	return r.FilterSet.Validate()
+}
+
+// Validate perform validations up on deleting courses request.
+func (r *DeleteCoursesRequest) Validate() error {
+	if r.FilterSet == nil {
+		return errors.New("Filter set is empty while deleting courses")
 	}
-	return nil
+	return r.FilterSet.Validate()
 }
 
 // Validate performs validation on filterSet.

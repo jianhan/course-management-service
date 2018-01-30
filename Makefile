@@ -40,7 +40,7 @@ build:
 .PHONY: run
 run:
 	$(shell cp -R configs $(BUILDBIN)/)
-	$Q cd ${BUILDBIN} && ${SERVICE}
+	$Q cd ${BUILDBIN} && ./${SERVICE}
 
 # Tools
 GOLINT = $(BIN)/golint
