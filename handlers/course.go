@@ -25,11 +25,11 @@ func (c *CourseManagement) GetRepo() rp.CourseRepository {
 
 // UpsertCourses upsert multiply courses.
 func (c *CourseManagement) UpsertCourses(ctx context.Context, req *pcourse.UpsertCoursesRequest, rsp *pcourse.UpsertCoursesResponse) (err error) {
-	repo := c.GetRepo()
-	defer repo.Close()
 	if err = req.Validate(); err != nil {
 		return merrors.BadRequest(API+".GetCoursesByFilters", err.Error())
 	}
+	repo := c.GetRepo()
+	defer repo.Close()
 	if rsp.Updated, rsp.Inserted, err = repo.UpsertCourses(req.Courses); err != nil {
 		return merrors.InternalServerError(API+".GetCoursesByFilters", err.Error())
 	}

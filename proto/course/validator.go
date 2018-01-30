@@ -48,13 +48,21 @@ func (r *GetCoursesByFiltersRequest) Validate() error {
 	if r.FilterSet == nil {
 		return errors.New("Filter set is empty")
 	}
-	if r.FilterSet.Ids != nil && len(r.FilterSet.Ids) > 0 {
-		if err := validation.ValidateSliceUUID(r.FilterSet.Ids); err != nil {
+	if err := r.FilterSet.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Validate performs validation on filterSet.
+func (f *FilterSet) Validate() error {
+	if f.Ids != nil && len(f.Ids) > 0 {
+		if err := validation.ValidateSliceUUID(f.Ids); err != nil {
 			return err
 		}
 	}
-	if r.FilterSet.Slugs != nil && len(r.FilterSet.Slugs) > 0 {
-		if err := validation.ValidateSliceSlugs(r.FilterSet.Slugs); err != nil {
+	if f.Slugs != nil && len(f.Slugs) > 0 {
+		if err := validation.ValidateSliceSlugs(f.Slugs); err != nil {
 			return err
 		}
 	}

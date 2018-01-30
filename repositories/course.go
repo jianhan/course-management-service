@@ -74,7 +74,7 @@ func (c *Course) GetCoursesByFilters(filterSet *pb.FilterSet) ([]*pb.Course, err
 		queries = append(queries, bson.M{"start": bson.M{"$lte": filterSet.Start}})
 	}
 	if filterSet.End != nil {
-		queries = append(queries, bson.M{"start": bson.M{"$gte": filterSet.End}})
+		queries = append(queries, bson.M{"end": bson.M{"$gte": filterSet.End}})
 	}
 	if len(filterSet.Names) > 0 {
 		queries = append(queries, bson.M{"name": bson.M{"$in": filterSet.Names}})

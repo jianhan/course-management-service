@@ -8,6 +8,7 @@ import "google/protobuf/timestamp.proto";
 service CourseManager {
 	rpc UpsertCourses(UpsertCoursesRequest) returns (UpsertCoursesResponse) {}
 	rpc GetCoursesByFilters(GetCoursesByFiltersRequest) returns (GetCoursesByFiltersResponse) {}
+	rpc DeleteCourses(DeleteCoursesRequest) returns (DeleteCoursesResponse) {}
 }
 
 message Course {
@@ -25,6 +26,20 @@ message Course {
 	google.protobuf.Timestamp created_at = 8;
 	// @inject_tag: bson:"updated_at"
 	google.protobuf.Timestamp updated_at = 9;
+	uint32 order = 10;
+	repeated string categories = 11;
+}
+
+message Category {
+	// @inject_tag: bson:"_id,omitempty"
+	string id = 1;
+	// @inject_tag: validate:"required"
+	string name = 2;
+	string slug = 3;
+	// @inject_tag: validate:"required"
+	string description = 4;
+	uint32 order = 5;
+	repeated string courses = 6;
 }
 
 message Courses {
@@ -64,5 +79,13 @@ message BoolField {
 }
 
 message GetCoursesByFiltersRequest {
-		FilterSet filter_set = 1;
+	FilterSet filter_set = 1;
+}
+
+message DeleteCoursesRequest {
+	FilterSet filter_set = 1;
+}
+
+message DeleteCoursesResponse {
+	uint32 removed = 1;
 }
