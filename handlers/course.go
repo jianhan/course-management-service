@@ -46,7 +46,7 @@ func (c *CourseManagement) GetCoursesByFilters(ctx context.Context, req *pcourse
 		return merrors.BadRequest(API+".GetCoursesByFilters", "Empty filter set")
 	}
 	if rsp.Courses, err = repo.GetCoursesByFilters(req.FilterSet); err != nil {
-		return err
+		return merrors.InternalServerError(API+".GetCoursesByFilters", err.Error())
 	}
 	return
 }

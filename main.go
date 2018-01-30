@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/jianhan/course-management-service/handlers"
@@ -22,7 +21,8 @@ func main() {
 	}
 	defer session.Close()
 	repositories.Initialize(session, repositories.InitCourse)
-	serviceConfigs, err := cfgreader.NewReader(os.Getenv("ENV")).Read()
+	// serviceConfigs, err := cfgreader.NewReader(os.Getenv("ENV")).Read()
+	serviceConfigs, err := cfgreader.NewReader("development").Read()
 	if err != nil {
 		panic(fmt.Sprintf("error while reading configurations: %s", err.Error()))
 	}
