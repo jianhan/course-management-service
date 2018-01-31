@@ -17,8 +17,8 @@ type CourseManagement struct {
 	Session *mgo.Session
 }
 
-// GetRepo retrieve an mongo db session instance.
-func (c *CourseManagement) GetRepo() rp.CourseRepository {
+// GetCourseRepo retrieve an mongo db session instance.
+func (c *CourseManagement) GetCourseRepo() rp.CourseRepository {
 	t := &rp.Course{}
 	t.Session = c.Session.Clone()
 	return t
@@ -29,7 +29,7 @@ func (c *CourseManagement) UpsertCourses(ctx context.Context, req *pcourse.Upser
 	if err = req.Validate(); err != nil {
 		return merrors.BadRequest(API+".GetCoursesByFilters", err.Error())
 	}
-	repo := c.GetRepo()
+	repo := c.GetCourseRepo()
 	defer repo.Close()
 	if rsp.Updated, rsp.Inserted, err = repo.UpsertCourses(req.Courses); err != nil {
 		return merrors.InternalServerError(API+".GetCoursesByFilters", err.Error())
@@ -45,7 +45,7 @@ func (c *CourseManagement) GetCoursesByFilters(ctx context.Context, req *pcourse
 	if req.FilterSet == nil {
 		return merrors.BadRequest(API+".GetCoursesByFilters", "Empty filter set")
 	}
-	repo := c.GetRepo()
+	repo := c.GetCourseRepo()
 	defer repo.Close()
 	if rsp.Courses, err = repo.GetCoursesByFilters(req.FilterSet); err != nil {
 		return merrors.InternalServerError(API+".GetCoursesByFilters", err.Error())
@@ -58,7 +58,7 @@ func (c *CourseManagement) DeleteCoursesByIDs(ctx context.Context, req *pcourse.
 	if err = req.Validate(); err != nil {
 		return merrors.BadRequest(API+".DeleteCoursesByIDs", err.Error())
 	}
-	repo := c.GetRepo()
+	repo := c.GetCourseRepo()
 	defer repo.Close()
 	if rsp.Removed, err = repo.DeleteCoursesByIDs(req.Ids); err != nil {
 		return merrors.BadRequest(API+".DeleteCoursesByIDs", err.Error())
