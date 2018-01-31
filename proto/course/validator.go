@@ -109,3 +109,14 @@ func (r *GetCategoriesByFiltersRequest) Validate() error {
 	}
 	return nil
 }
+
+// Validate performs validation on DeleteCategoriesByIDsRequest.
+func (r *DeleteCategoriesByIDsRequest) Validate() error {
+	if len(r.Ids) == 0 {
+		return errors.New("Empty IDs while trying to delete categories")
+	}
+	if err := validation.ValidateSliceUUID(r.Ids); err != nil {
+		return err
+	}
+	return nil
+}

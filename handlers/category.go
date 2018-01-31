@@ -36,7 +36,7 @@ func (c *CourseManagement) GetCategoriesByFilters(ctx context.Context, req *pcou
 	if req.FilterSet == nil {
 		return merrors.BadRequest(API+".GetCategoriesByFilters", "Empty filter set")
 	}
-	repo := c.GetRepo()
+	repo := c.GetCategoryRepo()
 	defer repo.Close()
 	if rsp.Categories, err = repo.GetCategoriesByFilters(req.FilterSet); err != nil {
 		return merrors.InternalServerError(API+".GetCategoriesByFilters", err.Error())
