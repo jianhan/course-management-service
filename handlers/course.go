@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 
-	"github.com/davecgh/go-spew/spew"
 	pcourse "github.com/jianhan/course-management-service/proto/course"
 	rp "github.com/jianhan/course-management-service/repositories"
 	merrors "github.com/micro/go-micro/errors"
@@ -64,6 +63,5 @@ func (c *CourseManagement) DeleteCoursesByIDs(ctx context.Context, req *pcourse.
 	if rsp.Removed, err = repo.DeleteCoursesByIDs(req.Ids); err != nil {
 		return merrors.BadRequest(API+".DeleteCoursesByIDs", err.Error())
 	}
-	spew.Dump(rsp)
 	return
 }

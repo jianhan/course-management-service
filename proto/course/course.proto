@@ -6,9 +6,14 @@ option go_package = "course";
 import "google/protobuf/timestamp.proto";
 
 service CourseManager {
+	// Courses
 	rpc UpsertCourses(UpsertCoursesRequest) returns (UpsertCoursesResponse) {}
 	rpc GetCoursesByFilters(GetCoursesByFiltersRequest) returns (GetCoursesByFiltersResponse) {}
 	rpc DeleteCoursesByIDs(DeleteCoursesByIDsRequest) returns (DeleteCoursesByIDsResponse) {}
+	// Categories
+	rpc UpsertCategories(UpsertCategoriesRequest) returns (UpsertCategoriesResponse) {}
+	rpc GetCategoriesByFilters(GetCategoriesByFiltersRequest) returns (GetCategoriesByFiltersResponse) {}
+	rpc DeleteCategoriesByIDs(DeleteCategoriesByIDsRequest) returns (DeleteCategoriesByIDsResponse) {}
 }
 
 message Course {
@@ -39,11 +44,15 @@ message Category {
 	// @inject_tag: validate:"required"
 	string description = 4;
 	uint32 order = 5;
-	repeated string courses = 6;
+	bool visible = 6;
+	// @inject_tag: bson:"created_at"
+	google.protobuf.Timestamp created_at = 7;
+	// @inject_tag: bson:"updated_at"
+	google.protobuf.Timestamp updated_at = 8;
 }
 
 message Courses {
-		repeated Course courses = 1;
+	repeated Course courses = 1;
 }
 
 message Result {
@@ -87,5 +96,38 @@ message DeleteCoursesByIDsRequest {
 }
 
 message DeleteCoursesByIDsResponse {
+	uint32 removed = 1;
+}
+
+message CategoryFilterSet {
+	repeated string ids = 1;
+	string text_search = 2;
+	repeated string names = 3;
+	repeated string slugs = 4;
+	BoolField visible = 5;
+}
+
+message UpsertCategoriesRequest {
+	repeated Category categories = 1;
+}
+
+message UpsertCategoriesResponse {
+	uint32  updated = 1;
+	uint32  inserted = 2;
+}
+
+message GetCategoriesByFiltersRequest {
+	CategoryFilterSet filter_set = 1;
+}
+
+message GetCategoriesByFiltersResponse {
+	repeated Category categories = 1;
+}
+
+message DeleteCategoriesByIDsRequest {
+	repeated string ids = 1;
+}
+
+message DeleteCategoriesByIDsResponse {
 	uint32 removed = 1;
 }

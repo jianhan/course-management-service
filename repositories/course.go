@@ -8,7 +8,6 @@ import (
 	pb "github.com/jianhan/course-management-service/proto/course"
 	jmongod "github.com/jianhan/pkg/mongod"
 	"github.com/satori/go.uuid"
-	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -99,30 +98,4 @@ func (c *Course) GetCoursesByFilters(filterSet *pb.FilterSet) ([]*pb.Course, err
 		return nil, err
 	}
 	return courses, nil
-}
-
-// InitCourse performs initializations for courses collection such as index, etc..
-var InitCourse RepoInitFunc = func(session *mgo.Session) {
-	s := session.Clone()
-	defer s.Close()
-	c := s.DB(dbName).C(coursesCollection)
-	// create unique index on slug
-	slugIndex := mgo.Index{
-		Key:        []string{"slug"},
-		Unique:     true,
-		DropDups:   false,
-		Background: false,
-		Sparse:     true,
-	}
-	err := c.EnsureIndex(slugIndex)
-	if err != nil {
-		panic(err)
-	}
-	textIndex := mgo.Index{
-		Key: []string{"$text:name", "$text:description"},
-	}
-	err = c.EnsureIndex(textIndex)
-	if err != nil {
-		panic(err)
-	}
 }

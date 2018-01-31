@@ -20,7 +20,7 @@ func main() {
 		panic(err)
 	}
 	defer session.Close()
-	repositories.Initialize(session, repositories.InitCourse)
+	repositories.Initialize(session, repositories.InitCourse, repositories.InitCategories)
 	// serviceConfigs, err := cfgreader.NewReader(os.Getenv("ENV")).Read()
 	serviceConfigs, err := cfgreader.NewReader("development").Read()
 	if err != nil {
