@@ -49,7 +49,7 @@ func (c *CourseManagement) DeleteCategoriesByIDs(ctx context.Context, req *pcour
 	if err = req.Validate(); err != nil {
 		return merrors.BadRequest(API+".DeleteCategoriesByIDs", err.Error())
 	}
-	repo := c.GetRepo()
+	repo := c.GetCategoryRepo()
 	defer repo.Close()
 	if rsp.Removed, err = repo.DeleteCategoriesByIDs(req.Ids); err != nil {
 		return merrors.BadRequest(API+".DeleteCategoriesByIDs", err.Error())
