@@ -21,7 +21,7 @@ var InitCourse RepoInitFunc = func(session *mgo.Session) {
 	c := s.DB(dbName).C(coursesCollection)
 	// create unique index on slug
 	slugIndex := mgo.Index{
-		Key:        []string{"name"},
+		Key:        []string{"slug"},
 		Unique:     true,
 		DropDups:   false,
 		Background: false,
@@ -47,7 +47,7 @@ var InitCategories RepoInitFunc = func(session *mgo.Session) {
 	c := s.DB(dbName).C(categoriesCollection)
 	// create unique index on slug
 	slugIndex := mgo.Index{
-		Key:        []string{"name"},
+		Key:        []string{"slug"},
 		Unique:     true,
 		DropDups:   false,
 		Background: false,
