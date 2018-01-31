@@ -96,3 +96,16 @@ func (r *UpsertCategoriesRequest) Validate() error {
 	}
 	return nil
 }
+
+// Validate performs validation on GetCategoriesByFiltersRequest.
+func (r *GetCategoriesByFiltersRequest) Validate() error {
+	if r.FilterSet == nil {
+		return errors.New("Filter set is empty while fetching categories")
+	}
+	if len(r.FilterSet.Ids) > 0 {
+		if err := validation.ValidateSliceUUID(r.FilterSet.Ids); err != nil {
+			return err
+		}
+	}
+	return nil
+}
