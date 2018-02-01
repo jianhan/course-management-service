@@ -61,6 +61,9 @@ func (c *Category) DeleteCategoriesByIDs(ids []string) (uint32, error) {
 	if err != nil {
 		return 0, err
 	}
+	// if err := c.Session.DB(dbName).C(coursesCollection).Find(bson.M{"name": bson.M{"$in": ids}}).All(&courses); err != nil {
+	// 	return nil, err
+	// }
 	return uint32(changeInfo.Removed), nil
 }
 

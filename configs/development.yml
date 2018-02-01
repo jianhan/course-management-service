@@ -1,1 +1,6 @@
-enable_debug: false
+mysql:
+  host: localhost
+  username: root
+  password: root
+  port: 3306
+  database: courses-management-service

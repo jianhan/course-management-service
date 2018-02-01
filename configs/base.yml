@@ -1,9 +1,9 @@
-service: 
+service:
   name: go.micro.srv.course_management
   register_ttl: 30
   register_interval: 10
   version: 1.0.0
-  metadata: 
+  metadata:
     description: Simple course managment micro service
 mongo:
   url: localhost

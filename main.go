@@ -1,31 +1,39 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
-	"github.com/jianhan/course-management-service/handlers"
-	pb "github.com/jianhan/course-management-service/proto/course"
-	"github.com/jianhan/course-management-service/repositories"
+	_ "github.com/go-sql-driver/mysql"
 	cfgreader "github.com/jianhan/pkg/configs"
-	jmongod "github.com/jianhan/pkg/mongod"
 	micro "github.com/micro/go-micro"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 func main() {
-	session, err := jmongod.CreateSession(viper.GetString("mongo.url"))
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-	repositories.Initialize(session, repositories.InitCourse, repositories.InitCategories)
 	// serviceConfigs, err := cfgreader.NewReader(os.Getenv("ENV")).Read()
 	serviceConfigs, err := cfgreader.NewReader("development").Read()
 	if err != nil {
 		panic(fmt.Sprintf("error while reading configurations: %s", err.Error()))
 	}
+	db, err := sql.Open(
+		"mysql",
+		fmt.Sprintf(
+			"%s:%s@tcp(%s:%s)/%s",
+			viper.GetString("mysql.username"),
+			viper.GetString("mysql.password"),
+			viper.GetString("mysql.host"),
+			viper.GetString("mysql.port"),
+			viper.GetString("mysql.database"),
+		),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	// repositories.Initialize(session, repositories.InitCourse, repositories.InitCategories)
 	srv := micro.NewService(
 		micro.Name(serviceConfigs.Name),
 		micro.RegisterTTL(time.Duration(serviceConfigs.RegisterTTL)*time.Second),
@@ -34,7 +42,7 @@ func main() {
 		micro.Metadata(serviceConfigs.Metadata),
 	)
 	srv.Init()
-	pb.RegisterCourseManagerHandler(srv.Server(), &handlers.CourseManagement{Session: session})
+	// pb.RegisterCourseManagerHandler(srv.Server(), &handlers.CourseManagement{Session: session})
 	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
