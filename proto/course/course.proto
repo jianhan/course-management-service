@@ -14,6 +14,9 @@ service CourseManager {
 	rpc UpsertCategories(UpsertCategoriesRequest) returns (UpsertCategoriesResponse) {}
 	rpc GetCategoriesByFilters(GetCategoriesByFiltersRequest) returns (GetCategoriesByFiltersResponse) {}
 	rpc DeleteCategoriesByIDs(DeleteCategoriesByIDsRequest) returns (DeleteCategoriesByIDsResponse) {}
+  // Courses and categories
+	rpc AssignCategories(AssignCategoriesRequest) returns (AssignCategoriesResponse) {}
+	rpc SyncCategories(SyncCategoriesRequest) returns (SyncCategoriesResponse) {}
 }
 
 message Course {
@@ -112,8 +115,8 @@ message UpsertCategoriesRequest {
 }
 
 message UpsertCategoriesResponse {
-	uint32  updated = 1;
-	uint32  inserted = 2;
+	uint32 updated = 1;
+	uint32 inserted = 2;
 }
 
 message GetCategoriesByFiltersRequest {
@@ -130,4 +133,24 @@ message DeleteCategoriesByIDsRequest {
 
 message DeleteCategoriesByIDsResponse {
 	uint32 removed = 1;
+}
+
+message AssignCategoriesRequest {
+	map<string, IDs> course_id_with_category_ids = 1;
+}
+
+message SyncCategoriesRequest {
+	map<string, IDs> course_id_with_category_ids = 1;
+}
+
+message AssignCategoriesResponse {
+	uint32 updated = 1;
+}
+
+message SyncCategoriesResponse {
+	uint32 updated = 1;
+}
+
+message IDs {
+	repeated string ids = 1;
 }
