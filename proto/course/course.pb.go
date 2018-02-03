@@ -54,10 +54,12 @@ type Course struct {
 	// @inject_tag: bson:"display_order,omitempty"
 	DisplayOrder uint64 `protobuf:"varint,4,opt,name=display_order,json=displayOrder" json:"display_order,omitempty" bson:"display_order,omitempty"`
 	// @inject_tag: validate:"required"
-	Description string                     `protobuf:"bytes,5,opt,name=description" json:"description,omitempty" validate:"required"`
-	Visible     bool                       `protobuf:"varint,6,opt,name=visible" json:"visible,omitempty"`
-	Start       *google_protobuf.Timestamp `protobuf:"bytes,7,opt,name=start" json:"start,omitempty"`
-	End         *google_protobuf.Timestamp `protobuf:"bytes,8,opt,name=end" json:"end,omitempty"`
+	Description string `protobuf:"bytes,5,opt,name=description" json:"description,omitempty" validate:"required"`
+	Visible     bool   `protobuf:"varint,6,opt,name=visible" json:"visible,omitempty"`
+	// @inject_tag: validate:"required"
+	Start *google_protobuf.Timestamp `protobuf:"bytes,7,opt,name=start" json:"start,omitempty" validate:"required"`
+	// @inject_tag: validate:"required"
+	End *google_protobuf.Timestamp `protobuf:"bytes,8,opt,name=end" json:"end,omitempty" validate:"required"`
 	// @inject_tag: bson:"created_at"
 	CreatedAt *google_protobuf.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt" json:"created_at,omitempty" bson:"created_at"`
 	// @inject_tag: bson:"updated_at"

@@ -2,19 +2,17 @@ package course
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/asaskevich/govalidator"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/gosimple/slug"
 	structvalidator "gopkg.in/go-playground/validator.v9"
 )
 
 // Validate checks if any invalid slugs or any invalid UUIDs.
 func (r *UpsertCoursesRequest) Validate() error {
-	for _, v := range r.Courses {
-		if v.Id != "" && !govalidator.IsUUID(v.Id) {
-			return fmt.Errorf("Invalid UUID: %s", v.Id)
-		}
-	}
+	// Struct validation
 	sv := structvalidator.New()
 	for k, v := range r.Courses {
 		if err := sv.Struct(v); err != nil {
@@ -31,6 +29,13 @@ func (r *UpsertCoursesRequest) Validate() error {
 		// if slug is empty then automatically generate one based on name.
 		if v.Slug == "" {
 			r.Courses[k].Slug = slug.Make(v.Name)
+		}
+		if v.UpdatedAt == nil {
+			t, err := ptypes.TimestampProto(time.Now())
+			if err != nil {
+				return err
+			}
+			r.Courses[k].UpdatedAt = t
 		}
 	}
 	return nil

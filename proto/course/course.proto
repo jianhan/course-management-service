@@ -28,7 +28,9 @@ message Course {
 	// @inject_tag: validate:"required"
 	string description = 5;
 	bool visible = 6;
+	// @inject_tag: validate:"required"
 	google.protobuf.Timestamp start = 7;
+	// @inject_tag: validate:"required"
 	google.protobuf.Timestamp end = 8;
 	// @inject_tag: bson:"created_at"
 	google.protobuf.Timestamp created_at = 9;

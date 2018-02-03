@@ -1,5 +1,5 @@
-hash: 92c2a6fcd5b4e167fe06b66cf9bf3062de096191636adc93c458997371a7f380
-updated: 2018-02-01T22:27:55.413562338+10:00
+hash: 8df0c2ebb0851aa2b8d1f4e2e97916dcf8a94bf1226d46302d9db668d3d295cb
+updated: 2018-02-04T08:28:10.669184989+10:00
 imports:
 - name: github.com/armon/go-metrics
   version: 7aa49fde808223f8dadfdbfd3a20ff6c19e5f9ec
@@ -27,6 +27,8 @@ imports:
   - ptypes/any
   - ptypes/duration
   - ptypes/timestamp
+- name: github.com/google/uuid
+  version: 064e2069ce9c359c118179501254f67d7d37ba24
 - name: github.com/gosimple/slug
   version: e9f42fa127660e552d0ad2b589868d403a9be7c6
 - name: github.com/hashicorp/consul
@@ -69,7 +71,6 @@ imports:
   subpackages:
   - configs
   - mongod
-  - validation
 - name: github.com/magiconair/properties
   version: 49d762b9817ba1c2e9d0c69183c2b4a8b8f1d934
 - name: github.com/micro/cli
@@ -168,34 +169,15 @@ imports:
   subpackages:
   - transform
   - unicode/norm
-- name: google.golang.org/appengine
-  version: 5bee14b453b4c71be47ec1781b0fa61c2ea182db
-  subpackages:
-  - cloudsql
 - name: gopkg.in/go-playground/validator.v9
-  version: 48a433ba4bcadc5be9aa16d4bdcb383d3f57a741
+  version: 3620d3c0694119b61c72071ff5a05a976e97b05a
 - name: gopkg.in/mgo.v2
   version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
-  subpackages:
-  - bson
-  - internal/json
-  - internal/sasl
-  - internal/scram
 - name: gopkg.in/yaml.v2
   version: d670f9405373e636a5a2765eea47fac0c9bc91a4
 testImports:
 - name: github.com/bxcodec/faker
   version: c6722237957259412e4587a1dee0bb2620258745
-  subpackages:
-  - support/slice
-- name: github.com/davecgh/go-spew
-  version: db69d09d2c587e9b9677f991dfcab1fc24d9086e
-  subpackages:
-  - spew
-- name: github.com/pmezard/go-difflib
-  version: 792786c7400a136282c1664665ae0a8db921c6c2
-  subpackages:
-  - difflib
 - name: github.com/stretchr/testify
   version: 12b6f73e6084dad08a7c6e575284b177ecafbc71
   subpackages:

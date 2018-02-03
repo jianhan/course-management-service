@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/google/uuid"
 	pb "github.com/jianhan/course-management-service/proto/course"
 )
 
@@ -34,17 +35,41 @@ func NewCourseRepository(db *sql.DB) CourseRepository {
 
 // UpsertCourses update/insert multiple courses.
 func (c *CourseMysql) UpsertCourses(courses []*pb.Course, upsertCategories bool) (result sql.Result, err error) {
-	sqlStr := `INSERT INTO courses (id, name, slug, description, start, end, updated_at) VALUES`
+	sqlStr := `INSERT INTO courses (id, name, slug, visible,description, start, end, updated_at) VALUES`
 	var placeholders []string
 	var vals []interface{}
 	for _, c := range courses {
-		placeholders = append(placeholders, "(?,?,?,?,?,?,?)")
-		vals = append(vals, c.Id, c.Name, c.Slug, c.Description, "2018-12-12 11:11:11", "2018-12-12 11:11:11", "2018-12-12 11:11:11")
+		if c.Id == "" {
+			c.Id = uuid.New().String()
+		}
+		placeholders = append(placeholders, "(?,?,?,?,?,?,?,?)")
+		startTime, tErr := ptypes.Timestamp(c.Start)
+		if tErr != nil {
+			return nil, tErr
+		}
+		endTime, tErr := ptypes.Timestamp(c.End)
+		if tErr != nil {
+			return nil, tErr
+		}
+		updatedAtTime, tErr := ptypes.Timestamp(c.UpdatedAt)
+		if tErr != nil {
+			return nil, tErr
+		}
+		vals = append(
+			vals,
+			c.Id,
+			c.Name,
+			c.Slug,
+			c.Visible,
+			c.Description,
+			startTime.Format("2006-01-02 15:04:05"),
+			endTime.Format("2006-01-02 15:04:05"),
+			updatedAtTime.Format("2006-01-02 15:04:05"),
+		)
 	}
 	sqlStr += strings.Join(placeholders, ",")
-	sqlStr += `ON DUPLICATE KEY UPDATE name=VALUES(name), slug=VALUES(slug), description=VALUES(description), start=VALUES(start), end=VALUES(end), updated_at=VALUES(updated_at)`
+	sqlStr += `ON DUPLICATE KEY UPDATE name=VALUES(name), slug=VALUES(slug), visible=VALUES(visible), description=VALUES(description), start=VALUES(start), end=VALUES(end), updated_at=VALUES(updated_at)`
 	stmt, err := c.db.Prepare(sqlStr)
-	spew.Dump(sqlStr, vals)
 	if err != nil {
 		return
 	}
