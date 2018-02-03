@@ -2,40 +2,38 @@ package repositories
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
 	pb "github.com/jianhan/course-management-service/proto/course"
 )
 
-// TODO: move follwing to Course struct.
-const (
-	dbName            = "course-management-service"
-	coursesCollection = "courses"
-)
-
 // CourseRepository contains collection of methods for repository.
 type CourseRepository interface {
 	UpsertCourses(courses []*pb.Course, upsertCategories bool) (result sql.Result, err error)
-
+	GetCoursesByFilters(filterSet *pb.FilterSet) ([]*pb.Course, error)
 	// DeleteCoursesByIDs(ids []string) (uint32, error)
 	// GetCoursesByFilters(filterSet *pb.FilterSet) ([]*pb.Course, error)
 }
 
 // CourseMysql is a mysql implementation of CourseRepository.
 type CourseMysql struct {
-	db *sql.DB
+	db           *sql.DB
+	coursesTable string
 }
 
 // NewCourseRepository returns a interface of CourseRepository.
 func NewCourseRepository(db *sql.DB) CourseRepository {
-	return &CourseMysql{db: db}
+	return &CourseMysql{db: db, coursesTable: "courses"}
 }
 
 // UpsertCourses update/insert multiple courses.
 func (c *CourseMysql) UpsertCourses(courses []*pb.Course, upsertCategories bool) (result sql.Result, err error) {
-	sqlStr := `INSERT INTO courses (id, name, slug, visible,description, start, end, updated_at) VALUES`
+	// TODO: added upsert categories later
+	sqlStr := fmt.Sprintf("INSERT INTO %s (id, name, slug, visible,description, start, end, updated_at) VALUES", c.coursesTable)
 	var placeholders []string
 	var vals []interface{}
 	for _, c := range courses {
@@ -81,40 +79,6 @@ func (c *CourseMysql) UpsertCourses(courses []*pb.Course, upsertCategories bool)
 	return
 }
 
-// // UpsertCourses update/insert multiple courses.
-// func (c *CourseMysql) UpsertCourses(courses []*pb.Course, upsertCategories bool) (result sql.Result, err error) {
-// 	sqlStr := `INSERT INTO courses
-// 						(id, name, slug, display_order, description, visible, start, end, updated_at)
-// 						VALUES`
-// 	var placeholders []string
-// 	var vals []interface{}
-// 	for _, c := range courses {
-// 		placeholders = append(placeholders, "(?,?,?,?,?,?,?,?,?)")
-// 		vals = append(vals, c.Id, c.Name, c.Slug, c.DisplayOrder, c.Description, c.Visible, "2018-12-12 11:11:11", "2018-12-12 11:11:11", "2018-12-12 11:11:11")
-// 	}
-// 	sqlStr += strings.Join(placeholders, ",")
-// 	sqlStr += `ON DUPLICATE KEY UPDATE
-// 														 	name=VALUES(name),
-// 															slug=VALUES(slug),
-// 															display_order=VALUES(display_order),
-// 															description=VALUES(description),
-// 															visible=VALUES(visible)
-// 															start=VALUES(start)
-// 															end=VALUES(end)
-// 															updated_at=VALUES(updated_at)`
-// 	stmt, err := c.db.Prepare(sqlStr)
-// 	spew.Dump(sqlStr, vals)
-// 	if err != nil {
-// 		return
-// 	}
-// 	defer stmt.Close()
-// 	result, err = stmt.Exec(vals...)
-// 	if err != nil {
-// 		return
-// 	}
-// 	return
-// }
-
 // // DeleteCoursesByIDs deletes multiply courses by IDs.
 // func (c *Course) DeleteCoursesByIDs(ids []string) (uint32, error) {
 // 	changeInfo, err := c.Session.DB(dbName).C(coursesCollection).RemoveAll(bson.M{"_id": bson.M{"$in": ids}})
@@ -124,34 +88,53 @@ func (c *CourseMysql) UpsertCourses(courses []*pb.Course, upsertCategories bool)
 // 	return uint32(changeInfo.Removed), nil
 // }
 //
-// // GetCoursesByFilters retrieves courses.
-// func (c *Course) GetCoursesByFilters(filterSet *pb.FilterSet) ([]*pb.Course, error) {
-// 	var conditions []map[string]interface{}
-// 	if len(filterSet.Ids) > 0 {
-// 		conditions = append(conditions, bson.M{"_id": bson.M{"$in": filterSet.Ids}})
-// 	}
-// 	if filterSet.Start != nil {
-// 		conditions = append(conditions, bson.M{"start": bson.M{"$lte": filterSet.Start}})
-// 	}
-// 	if filterSet.End != nil {
-// 		conditions = append(conditions, bson.M{"end": bson.M{"$gte": filterSet.End}})
-// 	}
-// 	if len(filterSet.Names) > 0 {
-// 		conditions = append(conditions, bson.M{"name": bson.M{"$in": filterSet.Names}})
-// 	}
-// 	if strings.TrimSpace(filterSet.TextSearch) != "" {
-// 		conditions = append(conditions, bson.M{"$text": bson.M{"$search": strings.TrimSpace(filterSet.TextSearch)}})
-// 	}
-// 	if filterSet.Visible != nil && !filterSet.Visible.Ignore {
-// 		conditions = append(conditions, bson.M{"visible": bson.M{"$eq": filterSet.Visible.Value}})
-// 	}
-// 	var query interface{}
-// 	if len(conditions) > 0 {
-// 		query = bson.M{"$and": conditions}
-// 	}
-// 	var courses []*pb.Course
-// 	if err := c.Session.DB(dbName).C(coursesCollection).Find(query).All(&courses); err != nil {
-// 		return nil, err
-// 	}
-// 	return courses, nil
-// }
+
+func (c *CourseMysql) rowToCourse(f func(dest ...interface{}) error) (course *pb.Course, err error) {
+	course = &pb.Course{}
+	var start, end, createdAt, updatedAt time.Time
+	err = f(
+		&course.Id,
+		&course.Name,
+		&course.Slug,
+		&course.DisplayOrder,
+		&course.Description,
+		&course.Visible,
+		&start,
+		&end,
+		&createdAt,
+		&updatedAt,
+	)
+	if err != nil {
+		return
+	}
+	if course.Start, err = ptypes.TimestampProto(start); err != nil {
+		return
+	}
+	if course.End, err = ptypes.TimestampProto(end); err != nil {
+		return
+	}
+	if course.CreatedAt, err = ptypes.TimestampProto(createdAt); err != nil {
+		return
+	}
+	if course.UpdatedAt, err = ptypes.TimestampProto(updatedAt); err != nil {
+		return
+	}
+	return
+}
+
+// GetCoursesByFilters retrieves courses.
+func (c *CourseMysql) GetCoursesByFilters(filterSet *pb.FilterSet) (courses []*pb.Course, err error) {
+	rows, err := c.db.Query(fmt.Sprintf("SELECT * FROM %s", c.coursesTable))
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		course, rErr := c.rowToCourse(rows.Scan)
+		if rErr != nil {
+			return nil, rErr
+		}
+		courses = append(courses, course)
+	}
+	return
+}

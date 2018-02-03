@@ -29,21 +29,20 @@ func (c *CourseManagement) UpsertCourses(ctx context.Context, req *pcourse.Upser
 	return
 }
 
-// // GetCoursesByFilters retrieves courses by filters.
-// func (c *CourseManagement) GetCoursesByFilters(ctx context.Context, req *pcourse.GetCoursesByFiltersRequest, rsp *pcourse.GetCoursesByFiltersResponse) (err error) {
-// 	// if err = req.Validate(); err != nil {
-// 	// 	return merrors.BadRequest(API+".GetCoursesByFilters", err.Error())
-// 	// }
-// 	// if req.FilterSet == nil {
-// 	// 	return merrors.BadRequest(API+".GetCoursesByFilters", "Empty filter set")
-// 	// }
-// 	// repo := c.GetCourseRepo()
-// 	// defer repo.Close()
-// 	// if rsp.Courses, err = repo.GetCoursesByFilters(req.FilterSet); err != nil {
-// 	// 	return merrors.InternalServerError(API+".GetCoursesByFilters", err.Error())
-// 	// }
-// 	return
-// }
+// GetCoursesByFilters retrieves courses by filters.
+func (c *CourseManagement) GetCoursesByFilters(ctx context.Context, req *pcourse.GetCoursesByFiltersRequest, rsp *pcourse.GetCoursesByFiltersResponse) (err error) {
+	// if err = req.Validate(); err != nil {
+	// 	return merrors.BadRequest(API+".GetCoursesByFilters", err.Error())
+	// }
+	// if req.FilterSet == nil {
+	// 	return merrors.BadRequest(API+".GetCoursesByFilters", "Empty filter set")
+	// }
+	if rsp.Courses, err = c.CourseRepository.GetCoursesByFilters(req.FilterSet); err != nil {
+		return err
+	}
+	return
+}
+
 //
 // // DeleteCoursesByIDs remove courses by IDs.
 // func (c *CourseManagement) DeleteCoursesByIDs(ctx context.Context, req *pcourse.DeleteCoursesByIDsRequest, rsp *pcourse.DeleteCoursesByIDsResponse) (err error) {

@@ -12,7 +12,7 @@ func GetDB() (*sql.DB, error) {
 	db, err := sql.Open(
 		"mysql",
 		fmt.Sprintf(
-			"%s:%s@tcp(%s:%s)/%s",
+			"%s:%s@tcp(%s:%s)/%s?parseTime=true",
 			viper.GetString("mysql.username"),
 			viper.GetString("mysql.password"),
 			viper.GetString("mysql.host"),

@@ -8,8 +8,7 @@ import "google/protobuf/timestamp.proto";
 service CourseManager {
 	// Courses
 	rpc UpsertCourses(UpsertCoursesRequest) returns (UpsertResult) {}
-
-	// rpc GetCoursesByFilters(GetCoursesByFiltersRequest) returns (GetCoursesByFiltersResponse) {}
+	rpc GetCoursesByFilters(GetCoursesByFiltersRequest) returns (GetCoursesByFiltersResponse) {}
 	// rpc DeleteCoursesByIDs(DeleteCoursesByIDsRequest) returns (DeleteCoursesByIDsResponse) {}
 	// // Categories
 	// rpc UpsertCategories(UpsertCategoriesRequest) returns (UpsertCategoriesResponse) {}
@@ -84,6 +83,10 @@ message FilterSet {
 
 message GetCoursesByFiltersRequest {
 	FilterSet filter_set = 1;
+}
+
+message GetCoursesByFiltersResponse {
+	repeated Course courses = 1;
 }
 
 message DeleteCoursesByIDsRequest {
