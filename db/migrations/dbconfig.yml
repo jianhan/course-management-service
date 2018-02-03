@@ -1,5 +1,5 @@
 development:
     dialect: mysql
-    datasource: root@/course-management-service?parseTime=true
+    datasource: root:root@/course-management-service?parseTime=true
     dir: ./db/migrations
     table: migrations
