@@ -7,13 +7,14 @@ import "google/protobuf/timestamp.proto";
 
 service CourseManager {
 	// Courses
-	rpc UpsertCourses(UpsertCoursesRequest) returns (UpsertCoursesResponse) {}
-	rpc GetCoursesByFilters(GetCoursesByFiltersRequest) returns (GetCoursesByFiltersResponse) {}
-	rpc DeleteCoursesByIDs(DeleteCoursesByIDsRequest) returns (DeleteCoursesByIDsResponse) {}
-	// Categories
-	rpc UpsertCategories(UpsertCategoriesRequest) returns (UpsertCategoriesResponse) {}
-	rpc GetCategoriesByFilters(GetCategoriesByFiltersRequest) returns (GetCategoriesByFiltersResponse) {}
-	rpc DeleteCategoriesByIDs(DeleteCategoriesByIDsRequest) returns (DeleteCategoriesByIDsResponse) {}
+	rpc UpsertCourses(UpsertCoursesRequest) returns (UpsertResult) {}
+
+	// rpc GetCoursesByFilters(GetCoursesByFiltersRequest) returns (GetCoursesByFiltersResponse) {}
+	// rpc DeleteCoursesByIDs(DeleteCoursesByIDsRequest) returns (DeleteCoursesByIDsResponse) {}
+	// // Categories
+	// rpc UpsertCategories(UpsertCategoriesRequest) returns (UpsertCategoriesResponse) {}
+	// rpc GetCategoriesByFilters(GetCategoriesByFiltersRequest) returns (GetCategoriesByFiltersResponse) {}
+	// rpc DeleteCategoriesByIDs(DeleteCategoriesByIDsRequest) returns (DeleteCategoriesByIDsResponse) {}
 }
 
 message Course {
@@ -44,33 +45,29 @@ message Category {
 	string slug = 3;
 	// @inject_tag: validate:"required"
 	string description = 4;
-	uint32 order = 5;
+	uint32 display_order = 5;
 	bool visible = 6;
 	// @inject_tag: bson:"created_at"
 	google.protobuf.Timestamp created_at = 7;
 	// @inject_tag: bson:"updated_at"
 	google.protobuf.Timestamp updated_at = 8;
+	map<string, string> courses = 9;
 }
 
-message Courses {
-	repeated Course courses = 1;
-}
-
-message Result {
+message UpsertResult {
 	uint64 rows_effected = 1;
+	uint32 updated = 2;
+	uint32 inserted = 3;
+}
+
+message BoolField {
+	bool value = 1;
+	bool ignore = 2;
 }
 
 message UpsertCoursesRequest {
 	repeated Course courses = 1;
-}
-
-message UpsertCoursesResponse {
-	uint32  updated = 1;
-	uint32  inserted = 2;
-}
-
-message GetCoursesByFiltersResponse {
-	repeated Course courses = 1;
+	bool upsert_categories = 2;
 }
 
 message FilterSet {
@@ -81,11 +78,6 @@ message FilterSet {
 	google.protobuf.Timestamp start = 5;
 	google.protobuf.Timestamp end = 6;
 	BoolField visible = 7;
-}
-
-message BoolField {
-	bool value = 1;
-	bool ignore = 2;
 }
 
 message GetCoursesByFiltersRequest {
@@ -117,18 +109,18 @@ message UpsertCategoriesResponse {
 	uint32 inserted = 2;
 }
 
-message GetCategoriesByFiltersRequest {
-	CategoryFilterSet filter_set = 1;
-}
-
-message GetCategoriesByFiltersResponse {
-	repeated Category categories = 1;
-}
-
-message DeleteCategoriesByIDsRequest {
-	repeated string ids = 1;
-}
-
-message DeleteCategoriesByIDsResponse {
-	uint32 removed = 1;
-}
+// message GetCategoriesByFiltersRequest {
+// 	CategoryFilterSet filter_set = 1;
+// }
+//
+// message GetCategoriesByFiltersResponse {
+// 	repeated Category categories = 1;
+// }
+//
+// message DeleteCategoriesByIDsRequest {
+// 	repeated string ids = 1;
+// }
+//
+// message DeleteCategoriesByIDsResponse {
+// 	uint32 removed = 1;
+// }

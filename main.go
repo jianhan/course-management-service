@@ -1,16 +1,17 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jianhan/course-management-service/db"
 	"github.com/jianhan/course-management-service/handlers"
+	pb "github.com/jianhan/course-management-service/proto/course"
+	"github.com/jianhan/course-management-service/repositories"
 	cfgreader "github.com/jianhan/pkg/configs"
 	micro "github.com/micro/go-micro"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 func main() {
@@ -19,19 +20,9 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("error while reading configurations: %s", err.Error()))
 	}
-	db, err := sql.Open(
-		"mysql",
-		fmt.Sprintf(
-			"%s:%s@tcp(%s:%s)/%s",
-			viper.GetString("mysql.username"),
-			viper.GetString("mysql.password"),
-			viper.GetString("mysql.host"),
-			viper.GetString("mysql.port"),
-			viper.GetString("mysql.database"),
-		),
-	)
+	db, err := db.GetDB()
 	if err != nil {
-		log.Fatal(err)
+		panic(fmt.Sprintf("error while connect to database: %s", err.Error()))
 	}
 	defer db.Close()
 	srv := micro.NewService(
@@ -42,7 +33,7 @@ func main() {
 		micro.Metadata(serviceConfigs.Metadata),
 	)
 	srv.Init()
-	pb.RegisterCourseManagerHandler(srv.Server(), &handlers.CourseManagement{DB: db})
+	pb.RegisterCourseManagerHandler(srv.Server(), &handlers.CourseManagement{CourseRepository: repositories.NewCourseRepository(db)})
 	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
