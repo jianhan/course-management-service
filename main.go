@@ -6,6 +6,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jianhan/course-management-service/handlers"
 	cfgreader "github.com/jianhan/pkg/configs"
 	micro "github.com/micro/go-micro"
 	log "github.com/sirupsen/logrus"
@@ -33,7 +34,6 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	// repositories.Initialize(session, repositories.InitCourse, repositories.InitCategories)
 	srv := micro.NewService(
 		micro.Name(serviceConfigs.Name),
 		micro.RegisterTTL(time.Duration(serviceConfigs.RegisterTTL)*time.Second),
@@ -42,7 +42,7 @@ func main() {
 		micro.Metadata(serviceConfigs.Metadata),
 	)
 	srv.Init()
-	// pb.RegisterCourseManagerHandler(srv.Server(), &handlers.CourseManagement{Session: session})
+	pb.RegisterCourseManagerHandler(srv.Server(), &handlers.CourseManagement{DB: db})
 	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}

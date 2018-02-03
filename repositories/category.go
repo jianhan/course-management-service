@@ -6,7 +6,6 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	pb "github.com/jianhan/course-management-service/proto/course"
-	jmongod "github.com/jianhan/pkg/mongod"
 	uuid "github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -18,12 +17,10 @@ type CategoryRepository interface {
 	UpsertCategories(categories []*pb.Category) (uint32, uint32, error)
 	DeleteCategoriesByIDs(ids []string) (uint32, error)
 	GetCategoriesByFilters(filterSet *pb.CategoryFilterSet) ([]*pb.Category, error)
-	Close()
 }
 
 // Category is a struct which will implement CategoryRepository interface.
 type Category struct {
-	jmongod.MRepository
 }
 
 // UpsertCategories update/insert multiple categories.
