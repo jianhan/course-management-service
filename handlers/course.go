@@ -5,6 +5,7 @@ import (
 
 	pcourse "github.com/jianhan/course-management-service/proto/course"
 	"github.com/jianhan/course-management-service/repositories"
+	merrors "github.com/micro/go-micro/errors"
 )
 
 // API is a constant to define the name of API.
@@ -17,14 +18,14 @@ type CourseManagement struct {
 
 // UpsertCourses upsert multiply courses.
 func (c *CourseManagement) UpsertCourses(ctx context.Context, req *pcourse.UpsertCoursesRequest, rsp *pcourse.UpsertResult) (err error) {
-	// if err = req.Validate(); err != nil {
-	// 	return merrors.BadRequest(API+".GetCoursesByFilters", err.Error())
-	// }
-	// repo := c.GetCourseRepo()
-	// defer repo.Close()
-	// if rsp.Updated, rsp.Inserted, err = repo.UpsertCourses(req.Courses); err != nil {
-	// 	return merrors.InternalServerError(API+".GetCoursesByFilters", err.Error())
-	// }
+	if err = req.Validate(); err != nil {
+		return merrors.BadRequest(API+".GetCoursesByFilters", err.Error())
+	}
+	result, err := c.CourseRepository.UpsertCourses(req.Courses, req.UpsertCategories)
+	if err != nil {
+		return
+	}
+	rsp.RowsAffected, err = result.RowsAffected()
 	return
 }
 

@@ -55,9 +55,9 @@ message Category {
 }
 
 message UpsertResult {
-	uint64 rows_effected = 1;
-	uint32 updated = 2;
-	uint32 inserted = 3;
+	int64 rows_affected = 1;
+	int64 updated = 2;
+	int64 inserted = 3;
 }
 
 message BoolField {

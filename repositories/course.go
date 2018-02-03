@@ -2,7 +2,9 @@ package repositories
 
 import (
 	"database/sql"
+	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	pb "github.com/jianhan/course-management-service/proto/course"
 )
 
@@ -14,7 +16,7 @@ const (
 
 // CourseRepository contains collection of methods for repository.
 type CourseRepository interface {
-	UpsertCourses(courses []*pb.Course, upsertCategories bool) (rowsAffected uint32, updated uint32, inserted uint32, err error)
+	UpsertCourses(courses []*pb.Course, upsertCategories bool) (result sql.Result, err error)
 
 	// DeleteCoursesByIDs(ids []string) (uint32, error)
 	// GetCoursesByFilters(filterSet *pb.FilterSet) ([]*pb.Course, error)
@@ -31,9 +33,62 @@ func NewCourseRepository(db *sql.DB) CourseRepository {
 }
 
 // UpsertCourses update/insert multiple courses.
-func (c *CourseMysql) UpsertCourses(courses []*pb.Course, upsertCategories bool) (rowsAffected uint32, updated uint32, inserted uint32, err error) {
+func (c *CourseMysql) UpsertCourses(courses []*pb.Course, upsertCategories bool) (result sql.Result, err error) {
+	sqlStr := `INSERT INTO courses (id, name, slug, description, start, end, updated_at) VALUES`
+	var placeholders []string
+	var vals []interface{}
+	for _, c := range courses {
+		placeholders = append(placeholders, "(?,?,?,?,?,?,?)")
+		vals = append(vals, c.Id, c.Name, c.Slug, c.Description, "2018-12-12 11:11:11", "2018-12-12 11:11:11", "2018-12-12 11:11:11")
+	}
+	sqlStr += strings.Join(placeholders, ",")
+	sqlStr += `ON DUPLICATE KEY UPDATE name=VALUES(name), slug=VALUES(slug), description=VALUES(description), start=VALUES(start), end=VALUES(end), updated_at=VALUES(updated_at)`
+	stmt, err := c.db.Prepare(sqlStr)
+	spew.Dump(sqlStr, vals)
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+	result, err = stmt.Exec(vals...)
+	if err != nil {
+		return
+	}
 	return
 }
+
+// // UpsertCourses update/insert multiple courses.
+// func (c *CourseMysql) UpsertCourses(courses []*pb.Course, upsertCategories bool) (result sql.Result, err error) {
+// 	sqlStr := `INSERT INTO courses
+// 						(id, name, slug, display_order, description, visible, start, end, updated_at)
+// 						VALUES`
+// 	var placeholders []string
+// 	var vals []interface{}
+// 	for _, c := range courses {
+// 		placeholders = append(placeholders, "(?,?,?,?,?,?,?,?,?)")
+// 		vals = append(vals, c.Id, c.Name, c.Slug, c.DisplayOrder, c.Description, c.Visible, "2018-12-12 11:11:11", "2018-12-12 11:11:11", "2018-12-12 11:11:11")
+// 	}
+// 	sqlStr += strings.Join(placeholders, ",")
+// 	sqlStr += `ON DUPLICATE KEY UPDATE
+// 														 	name=VALUES(name),
+// 															slug=VALUES(slug),
+// 															display_order=VALUES(display_order),
+// 															description=VALUES(description),
+// 															visible=VALUES(visible)
+// 															start=VALUES(start)
+// 															end=VALUES(end)
+// 															updated_at=VALUES(updated_at)`
+// 	stmt, err := c.db.Prepare(sqlStr)
+// 	spew.Dump(sqlStr, vals)
+// 	if err != nil {
+// 		return
+// 	}
+// 	defer stmt.Close()
+// 	result, err = stmt.Exec(vals...)
+// 	if err != nil {
+// 		return
+// 	}
+// 	return
+// }
 
 // // DeleteCoursesByIDs deletes multiply courses by IDs.
 // func (c *Course) DeleteCoursesByIDs(ids []string) (uint32, error) {
