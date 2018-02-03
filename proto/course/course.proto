@@ -22,17 +22,18 @@ message Course {
 	// @inject_tag: validate:"required"
 	string name = 2;
 	string slug = 3;
+	// @inject_tag: bson:"display_order,omitempty"
+	uint64 display_order = 4;
 	// @inject_tag: validate:"required"
-	string description = 4;
-	bool visible = 5;
-	google.protobuf.Timestamp start = 6;
-	google.protobuf.Timestamp end = 7;
+	string description = 5;
+	bool visible = 6;
+	google.protobuf.Timestamp start = 7;
+	google.protobuf.Timestamp end = 8;
 	// @inject_tag: bson:"created_at"
-	google.protobuf.Timestamp created_at = 8;
+	google.protobuf.Timestamp created_at = 9;
 	// @inject_tag: bson:"updated_at"
-	google.protobuf.Timestamp updated_at = 9;
-	uint32 order = 10;
-	repeated string categories = 11;
+	google.protobuf.Timestamp updated_at = 10;
+	map<string, string> categories = 11;
 }
 
 message Category {

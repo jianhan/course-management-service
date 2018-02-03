@@ -2,11 +2,8 @@ package repositories
 
 import (
 	"strings"
-	"time"
 
-	"github.com/golang/protobuf/ptypes"
 	pb "github.com/jianhan/course-management-service/proto/course"
-	uuid "github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -25,31 +22,7 @@ type Category struct {
 
 // UpsertCategories update/insert multiple categories.
 func (c *Category) UpsertCategories(categories []*pb.Category) (uint32, uint32, error) {
-	var updated, inserted uint32
-	for _, v := range categories {
-		now, err := ptypes.TimestampProto(time.Now())
-		if err != nil {
-			return 0, 0, nil
-		}
-		if v.Id == "" {
-			v.Id = uuid.Must(uuid.NewV4(), nil).String()
-			v.CreatedAt = now
-		}
-		if v.CreatedAt == nil {
-			v.CreatedAt = now
-		}
-		v.UpdatedAt = now
-		info, err := c.Session.DB(dbName).C(categoriesCollection).UpsertId(v.Id, v)
-		if err != nil {
-			return 0, 0, nil
-		}
-		if info.Updated > 0 {
-			updated++
-		} else {
-			inserted++
-		}
-	}
-	return updated, inserted, nil
+
 }
 
 // DeleteCategoriesByIDs deletes multiply categories by IDs.
