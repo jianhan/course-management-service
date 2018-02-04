@@ -33,7 +33,7 @@ func NewCourseRepository(db *sql.DB) CourseRepository {
 // UpsertCourses update/insert multiple courses.
 func (c *CourseMysql) UpsertCourses(courses []*pb.Course, upsertCategories bool) (result sql.Result, err error) {
 	// TODO: added upsert categories later
-	sqlStr := fmt.Sprintf("INSERT INTO %s (id, name, slug, visible,description, start, end, updated_at) VALUES", c.coursesTable)
+	sql := fmt.Sprintf("INSERT INTO %s (id, name, slug, visible,description, start, end, updated_at) VALUES", c.coursesTable)
 	var placeholders []string
 	var vals []interface{}
 	for _, c := range courses {
@@ -65,9 +65,9 @@ func (c *CourseMysql) UpsertCourses(courses []*pb.Course, upsertCategories bool)
 			updatedAtTime.Format("2006-01-02 15:04:05"),
 		)
 	}
-	sqlStr += strings.Join(placeholders, ",")
-	sqlStr += `ON DUPLICATE KEY UPDATE name=VALUES(name), slug=VALUES(slug), visible=VALUES(visible), description=VALUES(description), start=VALUES(start), end=VALUES(end), updated_at=VALUES(updated_at)`
-	stmt, err := c.db.Prepare(sqlStr)
+	sql += strings.Join(placeholders, ",")
+	sql += `ON DUPLICATE KEY UPDATE name=VALUES(name), slug=VALUES(slug), visible=VALUES(visible), description=VALUES(description), start=VALUES(start), end=VALUES(end), updated_at=VALUES(updated_at)`
+	stmt, err := c.db.Prepare(sql)
 	if err != nil {
 		return
 	}
@@ -124,7 +124,20 @@ func (c *CourseMysql) rowToCourse(f func(dest ...interface{}) error) (course *pb
 
 // GetCoursesByFilters retrieves courses.
 func (c *CourseMysql) GetCoursesByFilters(filterSet *pb.FilterSet) (courses []*pb.Course, err error) {
-	rows, err := c.db.Query(fmt.Sprintf("SELECT * FROM %s", c.coursesTable))
+	conditionSQLStr, args, err := filterSet.GenerateConditions()
+	fmt.Println(conditionSQLStr, args)
+	if err != nil {
+		return
+	}
+	sql := fmt.Sprintf("SELECT * FROM %s %s", c.coursesTable, conditionSQLStr)
+	if err != nil {
+		// TODO: log errors
+	}
+	stmt, err := c.db.Prepare(sql)
+	if err != nil {
+		return
+	}
+	rows, err := stmt.Query(args...)
 	if err != nil {
 		return
 	}

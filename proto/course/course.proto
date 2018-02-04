@@ -79,8 +79,6 @@ message FilterSet {
 	google.protobuf.Timestamp start = 5;
 	google.protobuf.Timestamp end = 6;
 	BoolField visible = 7;
-	Pagination pagination = 8;
-	Sort sort = 9;
 }
 
 message Pagination {
@@ -100,6 +98,8 @@ message Sort {
 
 message GetCoursesByFiltersRequest {
 	FilterSet filter_set = 1;
+	Pagination pagination = 8;
+	Sort sort = 9;
 }
 
 message GetCoursesByFiltersResponse {
