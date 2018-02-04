@@ -10,7 +10,7 @@ service CourseManager {
 	rpc UpsertCourses(UpsertCoursesRequest) returns (UpsertResult) {}
 	rpc GetCoursesByFilters(GetCoursesByFiltersRequest) returns (GetCoursesByFiltersResponse) {}
 	rpc DeleteCoursesByFilters(DeleteCoursesByFiltersRequest) returns (DeleteCoursesByFiltersResponse) {}
-	// // Categories
+	// Categories
 	// rpc UpsertCategories(UpsertCategoriesRequest) returns (UpsertCategoriesResponse) {}
 	// rpc GetCategoriesByFilters(GetCategoriesByFiltersRequest) returns (GetCategoriesByFiltersResponse) {}
 	// rpc DeleteCategoriesByIDs(DeleteCategoriesByIDsRequest) returns (DeleteCategoriesByIDsResponse) {}
@@ -114,21 +114,17 @@ message CategoryFilterSet {
 	BoolField visible = 5;
 }
 
-message UpsertCategoriesRequest {
-	repeated Category categories = 1;
-}
-
-message UpsertCategoriesResponse {
-	uint32 updated = 1;
-	uint32 inserted = 2;
-}
-
 message DeleteCoursesByFiltersRequest {
 	FilterSet filter_set = 1;
 }
 
 message DeleteCoursesByFiltersResponse {
 	int64 deleted = 1;
+}
+
+message UpsertCategoriesRequest {
+  repeated Category categories = 1;
+	bool upsert_courses = 2;
 }
 
 // message GetCategoriesByFiltersRequest {

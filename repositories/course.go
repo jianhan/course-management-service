@@ -147,6 +147,7 @@ func (c *CourseMysql) GetCoursesByFilters(filterSet *pb.FilterSet, sort *pb.Sort
 	}
 	// start query
 	sql := fmt.Sprintf("SELECT * FROM %s %s %s %s", c.coursesTable, conditionSQLStr, sortStr, paginationStr)
+	fmt.Println(sql, args)
 	stmt, err := c.db.Prepare(sql)
 	if err != nil {
 		return

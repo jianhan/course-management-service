@@ -56,6 +56,10 @@ func (f *FilterSet) GenerateConditions() (sql string, args []interface{}, err er
 		conditions = append(conditions, "end <= ?")
 		args = append(args, endDate.Format("2006-01-02 15:04:05"))
 	}
+	if f.TextSearch != "" {
+		conditions = append(conditions, "MATCH(name, description) AGAINST(? IN NATURAL LANGUAGE MODE)")
+		args = append(args, f.TextSearch)
+	}
 	if len(conditions) > 0 {
 		sql = fmt.Sprintf(" WHERE %s", strings.Join(conditions, " AND "))
 	}
