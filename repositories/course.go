@@ -14,7 +14,7 @@ import (
 // CourseRepository contains collection of methods for repository.
 type CourseRepository interface {
 	UpsertCourses(courses []*pb.Course, upsertCategories bool) (result sql.Result, err error)
-	GetCoursesByFilters(filterSet *pb.FilterSet) ([]*pb.Course, error)
+	GetCoursesByFilters(filterSet *pb.FilterSet, sort *pb.Sort, pagination *pb.Pagination) ([]*pb.Course, error)
 	// DeleteCoursesByIDs(ids []string) (uint32, error)
 	// GetCoursesByFilters(filterSet *pb.FilterSet) ([]*pb.Course, error)
 }
@@ -123,13 +123,16 @@ func (c *CourseMysql) rowToCourse(f func(dest ...interface{}) error) (course *pb
 }
 
 // GetCoursesByFilters retrieves courses.
-func (c *CourseMysql) GetCoursesByFilters(filterSet *pb.FilterSet) (courses []*pb.Course, err error) {
+func (c *CourseMysql) GetCoursesByFilters(filterSet *pb.FilterSet, sort *pb.Sort, pagination *pb.Pagination) (courses []*pb.Course, err error) {
 	conditionSQLStr, args, err := filterSet.GenerateConditions()
-	fmt.Println(conditionSQLStr, args)
 	if err != nil {
 		return
 	}
-	sql := fmt.Sprintf("SELECT * FROM %s %s", c.coursesTable, conditionSQLStr)
+	var paginationStr = " LIMIT 10 OFFSET 0"
+	if pagination != nil {
+		paginationStr = pagination.GenerateSQLStr()
+	}
+	sql := fmt.Sprintf("SELECT * FROM %s %s %s", c.coursesTable, conditionSQLStr, paginationStr)
 	if err != nil {
 		// TODO: log errors
 	}

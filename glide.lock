@@ -1,5 +1,5 @@
 hash: 8df0c2ebb0851aa2b8d1f4e2e97916dcf8a94bf1226d46302d9db668d3d295cb
-updated: 2018-02-04T10:24:33.347424627+10:00
+updated: 2018-02-04T14:32:31.304221356+10:00
 imports:
 - name: github.com/armon/go-metrics
   version: 7aa49fde808223f8dadfdbfd3a20ff6c19e5f9ec
@@ -67,7 +67,7 @@ imports:
   subpackages:
   - cmd/goconst
 - name: github.com/jianhan/pkg
-  version: 6a1c53a17ebabacb7a377363f67b848c92c9d480
+  version: bd039cad18097b6ddb520dea331c54804bffd004
   subpackages:
   - configs
   - mongod

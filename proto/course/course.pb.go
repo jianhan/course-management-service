@@ -71,23 +71,23 @@ func (SortDirection) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, 
 
 type Course struct {
 	// @inject_tag: bson:"_id,omitempty"
-	Id string `protobuf:"bytes,1,opt,name=id" json:"id,omitempty" bson:"_id,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id" json:"id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty"`
 	// @inject_tag: validate:"required"
-	Name string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty" validate:"required"`
+	Name string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required"`
 	Slug string `protobuf:"bytes,3,opt,name=slug" json:"slug,omitempty"`
 	// @inject_tag: bson:"display_order,omitempty"
-	DisplayOrder uint64 `protobuf:"varint,4,opt,name=display_order,json=displayOrder" json:"display_order,omitempty" bson:"display_order,omitempty"`
+	DisplayOrder uint64 `protobuf:"varint,4,opt,name=display_order,json=displayOrder" json:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty" bson:"display_order,omitempty"`
 	// @inject_tag: validate:"required"
-	Description string `protobuf:"bytes,5,opt,name=description" json:"description,omitempty" validate:"required"`
+	Description string `protobuf:"bytes,5,opt,name=description" json:"description,omitempty" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required"`
 	Visible     bool   `protobuf:"varint,6,opt,name=visible" json:"visible,omitempty"`
 	// @inject_tag: validate:"required"
-	Start *google_protobuf.Timestamp `protobuf:"bytes,7,opt,name=start" json:"start,omitempty" validate:"required"`
+	Start *google_protobuf.Timestamp `protobuf:"bytes,7,opt,name=start" json:"start,omitempty" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required"`
 	// @inject_tag: validate:"required"
-	End *google_protobuf.Timestamp `protobuf:"bytes,8,opt,name=end" json:"end,omitempty" validate:"required"`
+	End *google_protobuf.Timestamp `protobuf:"bytes,8,opt,name=end" json:"end,omitempty" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required"`
 	// @inject_tag: bson:"created_at"
-	CreatedAt *google_protobuf.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt" json:"created_at,omitempty" bson:"created_at"`
+	CreatedAt *google_protobuf.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt" json:"created_at,omitempty" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at"`
 	// @inject_tag: bson:"updated_at"
-	UpdatedAt  *google_protobuf.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt" json:"updated_at,omitempty" bson:"updated_at"`
+	UpdatedAt  *google_protobuf.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt" json:"updated_at,omitempty" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at"`
 	Categories map[string]string          `protobuf:"bytes,11,rep,name=categories" json:"categories,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 }
 
@@ -175,18 +175,18 @@ func (m *Course) GetCategories() map[string]string {
 
 type Category struct {
 	// @inject_tag: bson:"_id,omitempty"
-	Id string `protobuf:"bytes,1,opt,name=id" json:"id,omitempty" bson:"_id,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id" json:"id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty" bson:"_id,omitempty"`
 	// @inject_tag: validate:"required"
-	Name string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty" validate:"required"`
+	Name string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required"`
 	Slug string `protobuf:"bytes,3,opt,name=slug" json:"slug,omitempty"`
 	// @inject_tag: validate:"required"
-	Description  string `protobuf:"bytes,4,opt,name=description" json:"description,omitempty" validate:"required"`
+	Description  string `protobuf:"bytes,4,opt,name=description" json:"description,omitempty" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required" validate:"required"`
 	DisplayOrder uint32 `protobuf:"varint,5,opt,name=display_order,json=displayOrder" json:"display_order,omitempty"`
 	Visible      bool   `protobuf:"varint,6,opt,name=visible" json:"visible,omitempty"`
 	// @inject_tag: bson:"created_at"
-	CreatedAt *google_protobuf.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt" json:"created_at,omitempty" bson:"created_at"`
+	CreatedAt *google_protobuf.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt" json:"created_at,omitempty" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at" bson:"created_at"`
 	// @inject_tag: bson:"updated_at"
-	UpdatedAt *google_protobuf.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt" json:"updated_at,omitempty" bson:"updated_at"`
+	UpdatedAt *google_protobuf.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt" json:"updated_at,omitempty" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at" bson:"updated_at"`
 	Courses   map[string]string          `protobuf:"bytes,9,rep,name=courses" json:"courses,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 }
 

@@ -1,10 +1,9 @@
 syntax = "proto3";
 
-package go_micro_srv_course;
+package go.micro.srv.course;
 option go_package = "course";
 
 import "google/protobuf/timestamp.proto";
-
 service CourseManager {
 	// Courses
 	rpc UpsertCourses(UpsertCoursesRequest) returns (UpsertResult) {}
@@ -81,20 +80,7 @@ message FilterSet {
 	BoolField visible = 7;
 }
 
-message Pagination {
-	uint64 page = 1;
-	uint64 per_page  = 2;
-}
 
-enum SortDirection {
-  ASC = 0;
-  DESC = 1;
-}
-
-message Sort {
-	string field = 1;
-	SortDirection direction = 2;
-}
 
 message GetCoursesByFiltersRequest {
 	FilterSet filter_set = 1;
@@ -130,19 +116,3 @@ message UpsertCategoriesResponse {
 	uint32 updated = 1;
 	uint32 inserted = 2;
 }
-
-// message GetCategoriesByFiltersRequest {
-// 	CategoryFilterSet filter_set = 1;
-// }
-//
-// message GetCategoriesByFiltersResponse {
-// 	repeated Category categories = 1;
-// }
-//
-// message DeleteCategoriesByIDsRequest {
-// 	repeated string ids = 1;
-// }
-//
-// message DeleteCategoriesByIDsResponse {
-// 	uint32 removed = 1;
-// }
