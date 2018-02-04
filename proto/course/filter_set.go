@@ -9,9 +9,6 @@ import (
 
 // GenerateConditions generates mysql conditions as string.
 func (f *FilterSet) GenerateConditions() (sql string, args []interface{}, err error) {
-	if f == nil {
-		return
-	}
 	var conditions []string
 	if len(f.Ids) > 0 {
 		var ids []string

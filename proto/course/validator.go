@@ -1,7 +1,6 @@
 package course
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -43,14 +42,6 @@ func (r *UpsertCoursesRequest) Validate() error {
 	return nil
 }
 
-// Validate performs validation for GetCoursesByFiltersRequest.
-func (r *GetCoursesByFiltersRequest) Validate() error {
-	if r.FilterSet == nil {
-		return errors.New("Filter set is empty while fetching courses")
-	}
-	return r.FilterSet.Validate()
-}
-
 // // Validate perform validations up on deleting courses request.
 // func (r *DeleteCoursesByIDsRequest) Validate() error {
 // 	if len(r.Ids) == 0 {
@@ -61,7 +52,7 @@ func (r *GetCoursesByFiltersRequest) Validate() error {
 
 // Validate performs validation on filterSet.
 func (f *FilterSet) Validate() error {
-	if f.Ids != nil && len(f.Ids) > 0 {
+	if len(f.Ids) > 0 {
 		if err := validation.ValidateSliceUUID(f.Ids); err != nil {
 			return err
 		}

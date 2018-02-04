@@ -124,13 +124,19 @@ func (c *CourseMysql) rowToCourse(f func(dest ...interface{}) error) (course *pb
 
 // GetCoursesByFilters retrieves courses.
 func (c *CourseMysql) GetCoursesByFilters(filterSet *pb.FilterSet, sort *pb.Sort, pagination *pb.Pagination) (courses []*pb.Course, err error) {
-	// get all filters conditions as SQL string.
-	conditionSQLStr, args, err := filterSet.GenerateConditions()
-	if err != nil {
-		return
+	var (
+		conditionSQLStr string
+		args            []interface{}
+	)
+	if filterSet != nil {
+		// get all filters conditions as SQL string.
+		conditionSQLStr, args, err = filterSet.GenerateConditions()
+		if err != nil {
+			return
+		}
 	}
 	// get pagination part of the SQL.
-	var paginationStr = "LIMIT 10 OFFSET 0"
+	var paginationStr = "LIMIT 20 OFFSET 0"
 	if pagination != nil {
 		paginationStr = pagination.GenerateSQLStr()
 	}
