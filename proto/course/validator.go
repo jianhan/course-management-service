@@ -70,30 +70,37 @@ func (f *FilterSet) Validate() error {
 	return nil
 }
 
-//
-// // Validate validates request for upsert.
-// func (r *UpsertCategoriesRequest) Validate() error {
-// 	sv := structvalidator.New()
-// 	for k, v := range r.Categories {
-// 		if err := sv.Struct(v); err != nil {
-// 			return err
-// 		}
-// 		// if id is not empty, and it is not a valid UUID, throw error.
-// 		if v.Id != "" && !govalidator.IsUUID(v.Id) {
-// 			return fmt.Errorf("Invalid UUID: %s", v.Id)
-// 		}
-// 		// if slug is not empty, regardless if it is insert or update, throw error.
-// 		if v.Slug != "" && !slug.IsSlug(v.Slug) {
-// 			return fmt.Errorf("Invalid slug: %s", v.Slug)
-// 		}
-// 		// if slug is empty then automatically generate one based on name.
-// 		if v.Slug == "" {
-// 			r.Categories[k].Slug = slug.Make(v.Name)
-// 		}
-// 	}
-// 	return nil
-// }
-//
+// Validate validates request for upsert.
+func (r *UpsertCategoriesRequest) Validate() error {
+	sv := structvalidator.New()
+	for k, v := range r.Categories {
+		if err := sv.Struct(v); err != nil {
+			return err
+		}
+		// if id is not empty, and it is not a valid UUID, throw error.
+		if v.Id != "" && !govalidator.IsUUID(v.Id) {
+			return fmt.Errorf("Invalid UUID: %s", v.Id)
+		}
+		// if slug is not empty, regardless if it is insert or update, throw error.
+		if v.Slug != "" && !slug.IsSlug(v.Slug) {
+			return fmt.Errorf("Invalid slug: %s", v.Slug)
+		}
+		// if slug is empty then automatically generate one based on name.
+		if v.Slug == "" {
+			r.Categories[k].Slug = slug.Make(v.Name)
+		}
+		// automatically set updated at
+		if v.UpdatedAt == nil {
+			t, err := ptypes.TimestampProto(time.Now())
+			if err != nil {
+				return err
+			}
+			r.Categories[k].UpdatedAt = t
+		}
+	}
+	return nil
+}
+
 // // Validate performs validation on GetCategoriesByFiltersRequest.
 // func (r *GetCategoriesByFiltersRequest) Validate() error {
 // 	if r.FilterSet == nil {

@@ -11,7 +11,7 @@ service CourseManager {
 	rpc GetCoursesByFilters(GetCoursesByFiltersRequest) returns (GetCoursesByFiltersResponse) {}
 	rpc DeleteCoursesByFilters(DeleteCoursesByFiltersRequest) returns (DeleteCoursesByFiltersResponse) {}
 	// Categories
-	// rpc UpsertCategories(UpsertCategoriesRequest) returns (UpsertCategoriesResponse) {}
+	rpc UpsertCategories(UpsertCategoriesRequest) returns (UpsertResult) {}
 	// rpc GetCategoriesByFilters(GetCategoriesByFiltersRequest) returns (GetCategoriesByFiltersResponse) {}
 	// rpc DeleteCategoriesByIDs(DeleteCategoriesByIDsRequest) returns (DeleteCategoriesByIDsResponse) {}
 }

@@ -13,7 +13,8 @@ const API = "go_micro_srv_course"
 
 // CourseManagement handles all incomming request related to course.
 type CourseManagement struct {
-	CourseRepository repositories.CourseRepository
+	CourseRepository   repositories.CourseRepository
+	CategoryRepository repositories.CategoryRepository
 }
 
 // UpsertCourses upsert multiply courses.

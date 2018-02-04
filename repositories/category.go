@@ -1,22 +1,73 @@
 package repositories
 
-const categoriesCollection = "categories"
+import (
+	"database/sql"
+	"fmt"
+	"strings"
 
-// // CategoryRepository contains collection of methods for repository.
-// type CategoryRepository interface {
-// 	UpsertCategories(categories []*pb.Category) (uint32, uint32, error)
-// 	DeleteCategoriesByIDs(ids []string) (uint32, error)
-// 	GetCategoriesByFilters(filterSet *pb.CategoryFilterSet) ([]*pb.Category, error)
-// }
-//
-// // Category is a struct which will implement CategoryRepository interface.
-// type Category struct {
-// }
-//
-// // UpsertCategories update/insert multiple categories.
-// func (c *Category) UpsertCategories(categories []*pb.Category) (uint32, uint32, error) {
-//
-// }
+	"github.com/golang/protobuf/ptypes"
+	"github.com/google/uuid"
+	pb "github.com/jianhan/course-management-service/proto/course"
+)
+
+// CategoryRepository contains collection of methods for repository.
+type CategoryRepository interface {
+	UpsertCategories(categories []*pb.Category) (result sql.Result, err error)
+	// DeleteCategoriesByIDs(ids []string) (uint32, error)
+	// GetCategoriesByFilters(filterSet *pb.CategoryFilterSet) ([]*pb.Category, error)
+}
+
+// CategoryMysql is a struct which will implement CategoryRepository interface.
+type CategoryMysql struct {
+	db              *sql.DB
+	categoriesTable string
+}
+
+// NewCategoryRepository returns a interface of CategoryRepository
+func NewCategoryRepository(db *sql.DB) CategoryRepository {
+	return &CategoryMysql{db: db, categoriesTable: "categories"}
+}
+
+// UpsertCategories update/insert multiple categories.
+func (c *CategoryMysql) UpsertCategories(categories []*pb.Category) (result sql.Result, err error) {
+	// TODO: added upsert courses later
+	sql := fmt.Sprintf("INSERT INTO %s (id, name, slug, description, display_order, visible, updated_at) VALUES", c.categoriesTable)
+	var placeholders []string
+	var vals []interface{}
+	for _, c := range categories {
+		if c.Id == "" {
+			c.Id = uuid.New().String()
+		}
+		placeholders = append(placeholders, "(?,?,?,?,?,?,?,?)")
+		updatedAtTime, tErr := ptypes.Timestamp(c.UpdatedAt)
+		if tErr != nil {
+			return nil, tErr
+		}
+		vals = append(
+			vals,
+			c.Id,
+			c.Name,
+			c.Slug,
+			c.Description,
+			c.DisplayOrder,
+			c.Visible,
+			updatedAtTime.Format("2006-01-02 15:04:05"),
+		)
+	}
+	sql += strings.Join(placeholders, ",")
+	sql += `ON DUPLICATE KEY UPDATE name=VALUES(name), slug=VALUES(slug), description=VALUES(description), display_order=VALUES(display_order), visible=VALUES(visible), updated_at=VALUES(updated_at)`
+	stmt, err := c.db.Prepare(sql)
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+	result, err = stmt.Exec(vals...)
+	if err != nil {
+		return
+	}
+	return
+}
+
 //
 // // DeleteCategoriesByIDs deletes multiply categories by IDs.
 // func (c *Category) DeleteCategoriesByIDs(ids []string) (uint32, error) {

@@ -33,7 +33,13 @@ func main() {
 		micro.Metadata(serviceConfigs.Metadata),
 	)
 	srv.Init()
-	pb.RegisterCourseManagerHandler(srv.Server(), &handlers.CourseManagement{CourseRepository: repositories.NewCourseRepository(db)})
+	pb.RegisterCourseManagerHandler(
+		srv.Server(),
+		&handlers.CourseManagement{
+			CourseRepository:   repositories.NewCourseRepository(db),
+			CategoryRepository: repositories.NewCategoryRepository(db),
+		},
+	)
 	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}
