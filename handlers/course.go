@@ -37,16 +37,13 @@ func (c *CourseManagement) GetCoursesByFilters(ctx context.Context, req *pcourse
 	return
 }
 
-//
-// // DeleteCoursesByIDs remove courses by IDs.
-// func (c *CourseManagement) DeleteCoursesByIDs(ctx context.Context, req *pcourse.DeleteCoursesByIDsRequest, rsp *pcourse.DeleteCoursesByIDsResponse) (err error) {
-// 	// if err = req.Validate(); err != nil {
-// 	// 	return merrors.BadRequest(API+".DeleteCoursesByIDs", err.Error())
-// 	// }
-// 	// repo := c.GetCourseRepo()
-// 	// defer repo.Close()
-// 	// if rsp.Removed, err = repo.DeleteCoursesByIDs(req.Ids); err != nil {
-// 	// 	return merrors.BadRequest(API+".DeleteCoursesByIDs", err.Error())
-// 	// }
-// 	return
-// }
+// DeleteCoursesByFilters remove courses according to filter set.
+func (c *CourseManagement) DeleteCoursesByFilters(ctx context.Context, req *pcourse.DeleteCoursesByFiltersRequest, rsp *pcourse.DeleteCoursesByFiltersResponse) (err error) {
+	if err = req.Validate(); err != nil {
+		return merrors.BadRequest(API+".DeleteCoursesByFilters", err.Error())
+	}
+	if rsp.Deleted, err = c.CourseRepository.DeleteCoursesByFilters(req.FilterSet); err != nil {
+		return err
+	}
+	return
+}

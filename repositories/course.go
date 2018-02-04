@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -15,8 +16,7 @@ import (
 type CourseRepository interface {
 	UpsertCourses(courses []*pb.Course, upsertCategories bool) (result sql.Result, err error)
 	GetCoursesByFilters(filterSet *pb.FilterSet, sort *pb.Sort, pagination *pb.Pagination) ([]*pb.Course, error)
-	// DeleteCoursesByIDs(ids []string) (uint32, error)
-	// GetCoursesByFilters(filterSet *pb.FilterSet) ([]*pb.Course, error)
+	DeleteCoursesByFilters(filterSet *pb.FilterSet) (deleted int64, err error)
 }
 
 // CourseMysql is a mysql implementation of CourseRepository.
@@ -147,14 +147,11 @@ func (c *CourseMysql) GetCoursesByFilters(filterSet *pb.FilterSet, sort *pb.Sort
 	}
 	// start query
 	sql := fmt.Sprintf("SELECT * FROM %s %s %s %s", c.coursesTable, conditionSQLStr, sortStr, paginationStr)
-	fmt.Println(sql)
-	if err != nil {
-		// TODO: log errors
-	}
 	stmt, err := c.db.Prepare(sql)
 	if err != nil {
 		return
 	}
+	defer stmt.Close()
 	rows, err := stmt.Query(args...)
 	if err != nil {
 		return
@@ -166,6 +163,35 @@ func (c *CourseMysql) GetCoursesByFilters(filterSet *pb.FilterSet, sort *pb.Sort
 			return nil, rErr
 		}
 		courses = append(courses, course)
+	}
+	return
+}
+
+// DeleteCoursesByFilters removes courses according to filters.
+func (c *CourseMysql) DeleteCoursesByFilters(filterSet *pb.FilterSet) (deleted int64, err error) {
+	if filterSet == nil {
+		return 0, errors.New("filter set can not be empty while deleting courses")
+	}
+	var (
+		conditionSQLStr string
+		args            []interface{}
+	)
+	conditionSQLStr, args, err = filterSet.GenerateConditions()
+	if err != nil {
+		return
+	}
+	sql := fmt.Sprintf("DELETE FROM %s %s", c.coursesTable, conditionSQLStr)
+	stmt, err := c.db.Prepare(sql)
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+	r, err := stmt.Exec(args...)
+	if err != nil {
+		return
+	}
+	if deleted, err = r.RowsAffected(); err != nil {
+		return
 	}
 	return
 }

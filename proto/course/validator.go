@@ -1,6 +1,7 @@
 package course
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -42,13 +43,17 @@ func (r *UpsertCoursesRequest) Validate() error {
 	return nil
 }
 
-// // Validate perform validations up on deleting courses request.
-// func (r *DeleteCoursesByIDsRequest) Validate() error {
-// 	if len(r.Ids) == 0 {
-// 		return errors.New("IDs can not be empty while deleting courses")
-// 	}
-// 	return nil
-// }
+// Validate performs validation up on DeleteCoursesByFiltersRequest.
+func (r *DeleteCoursesByFiltersRequest) Validate() error {
+	// when deleting courses never allow empty filter set to wipe out entire table.
+	if r.FilterSet == nil {
+		return errors.New("filter set can not be empty")
+	}
+	if err := r.FilterSet.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
 
 // Validate performs validation on filterSet.
 func (f *FilterSet) Validate() error {

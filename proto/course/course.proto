@@ -9,7 +9,7 @@ service CourseManager {
 	// Courses
 	rpc UpsertCourses(UpsertCoursesRequest) returns (UpsertResult) {}
 	rpc GetCoursesByFilters(GetCoursesByFiltersRequest) returns (GetCoursesByFiltersResponse) {}
-	// rpc DeleteCoursesByIDs(DeleteCoursesByIDsRequest) returns (DeleteCoursesByIDsResponse) {}
+	rpc DeleteCoursesByFilters(DeleteCoursesByFiltersRequest) returns (DeleteCoursesByFiltersResponse) {}
 	// // Categories
 	// rpc UpsertCategories(UpsertCategoriesRequest) returns (UpsertCategoriesResponse) {}
 	// rpc GetCategoriesByFilters(GetCategoriesByFiltersRequest) returns (GetCategoriesByFiltersResponse) {}
@@ -106,14 +106,6 @@ message GetCoursesByFiltersResponse {
 	repeated Course courses = 1;
 }
 
-message DeleteCoursesByIDsRequest {
-	repeated string ids = 1;
-}
-
-message DeleteCoursesByIDsResponse {
-	uint32 removed = 1;
-}
-
 message CategoryFilterSet {
 	repeated string ids = 1;
 	string text_search = 2;
@@ -129,6 +121,14 @@ message UpsertCategoriesRequest {
 message UpsertCategoriesResponse {
 	uint32 updated = 1;
 	uint32 inserted = 2;
+}
+
+message DeleteCoursesByFiltersRequest {
+	FilterSet filter_set = 1;
+}
+
+message DeleteCoursesByFiltersResponse {
+	int64 deleted = 1;
 }
 
 // message GetCategoriesByFiltersRequest {
