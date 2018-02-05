@@ -12,12 +12,12 @@ message UpsertResult {
 
 message BoolField {
 	bool value = 1;
-	optional bool ignore = 2 [default = false];
+	bool ignore = 2;
 }
 
 message Pagination {
-  optional uint64 page = 1 [default = 1];
-  optional uint64 per_page  = 2 [default = 10];
+  uint64 page = 1;
+  uint64 per_page  = 2;
 }
 
 enum SortDirection {
