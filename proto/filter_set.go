@@ -1,4 +1,4 @@
-package courses
+package proto
 
 import (
 	"fmt"

@@ -1,9 +1,10 @@
 syntax = "proto3";
 
 package courses;
+option go_package = "proto";
 
 import "google/protobuf/timestamp.proto";
-import "github.com/jianhan/course-management-service/proto/mysql/mysql.proto";
+import "github.com/jianhan/course-management-service/proto/mysql.proto";
 
 // Service declares all RPC calls for courses related functions.
 service Courses {

@@ -4,7 +4,7 @@ package categories;
 option go_package = "proto";
 
 import "google/protobuf/timestamp.proto";
-import "proto/mysql/mysql.proto";
+import "github.com/jianhan/course-management-service/proto/mysql.proto";
 
 service Categories {
 	rpc UpsertCategories(UpsertCategoriesRequest) returns (mysql.UpsertResult) {}
