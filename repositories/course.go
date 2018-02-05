@@ -9,14 +9,16 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
-	pb "github.com/jianhan/course-management-service/proto"
+
+	cpb "github.com/jianhan/course-management-service/proto/courses"
+	mpb "github.com/jianhan/course-management-service/proto/mysql"
 )
 
 // CourseRepository contains collection of methods for repository.
 type CourseRepository interface {
-	UpsertCourses(courses []*pb.Course, upsertCategories bool) (result sql.Result, err error)
-	GetCoursesByFilters(filterSet *pb.FilterSet, sort *pb.Sort, pagination *pb.Pagination) ([]*pb.Course, error)
-	DeleteCoursesByFilters(filterSet *pb.FilterSet) (deleted int64, err error)
+	UpsertCourses(courses []*cpb.Course, upsertCategories bool) (result sql.Result, err error)
+	GetCoursesByFilters(filterSet *cpb.FilterSet, sort *mpb.Sort, pagination *mpb.Pagination) ([]*cpb.Course, error)
+	DeleteCoursesByFilters(filterSet *cpb.FilterSet) (deleted int64, err error)
 }
 
 // CourseMysql is a mysql implementation of CourseRepository.
@@ -31,7 +33,7 @@ func NewCourseRepository(db *sql.DB) CourseRepository {
 }
 
 // UpsertCourses update/insert multiple courses.
-func (c *CourseMysql) UpsertCourses(courses []*pb.Course, upsertCategories bool) (result sql.Result, err error) {
+func (c *CourseMysql) UpsertCourses(courses []*cpb.Course, upsertCategories bool) (result sql.Result, err error) {
 	// TODO: added upsert categories later
 	sql := fmt.Sprintf("INSERT INTO %s (id, name, slug, visible,description, start, end, updated_at) VALUES", c.coursesTable)
 	var placeholders []string
@@ -89,8 +91,8 @@ func (c *CourseMysql) UpsertCourses(courses []*pb.Course, upsertCategories bool)
 // }
 //
 
-func (c *CourseMysql) rowToCourse(f func(dest ...interface{}) error) (course *pb.Course, err error) {
-	course = &pb.Course{}
+func (c *CourseMysql) rowToCourse(f func(dest ...interface{}) error) (course *cpb.Course, err error) {
+	course = &cpb.Course{}
 	var start, end, createdAt, updatedAt time.Time
 	err = f(
 		&course.Id,
@@ -123,7 +125,7 @@ func (c *CourseMysql) rowToCourse(f func(dest ...interface{}) error) (course *pb
 }
 
 // GetCoursesByFilters retrieves courses.
-func (c *CourseMysql) GetCoursesByFilters(filterSet *pb.FilterSet, sort *pb.Sort, pagination *pb.Pagination) (courses []*pb.Course, err error) {
+func (c *CourseMysql) GetCoursesByFilters(filterSet *cpb.FilterSet, sort *mpb.Sort, pagination *mpb.Pagination) (courses []*cpb.Course, err error) {
 	var (
 		conditionSQLStr string
 		args            []interface{}
@@ -169,7 +171,7 @@ func (c *CourseMysql) GetCoursesByFilters(filterSet *pb.FilterSet, sort *pb.Sort
 }
 
 // DeleteCoursesByFilters removes courses according to filters.
-func (c *CourseMysql) DeleteCoursesByFilters(filterSet *pb.FilterSet) (deleted int64, err error) {
+func (c *CourseMysql) DeleteCoursesByFilters(filterSet *cpb.FilterSet) (deleted int64, err error) {
 	if filterSet == nil {
 		return 0, errors.New("filter set can not be empty while deleting courses")
 	}

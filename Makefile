@@ -147,12 +147,12 @@ help:
 version:
 	@echo $(VERSION)
 pb:
-	for f in proto/*.proto; do \
+	for f in proto/**/*.proto; do \
 		protoc -I. -I${GOPATH}/src --go_out=plugins=micro,grpc:. $$f; \
 		echo compiled: $$f; \
 	done
 injectpb:
-	for f in proto/*.pb.go; do \
+	for f in proto/**/*.pb.go; do \
 		protoc-go-inject-tag -input=$$f \
 		echo injecting: $$f; \
 	done

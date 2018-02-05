@@ -1,4 +1,4 @@
-package proto_test
+package go_micro_srv_cm_test
 
 // func TestCourses_Validate(t *testing.T) {
 // 	type fields struct {

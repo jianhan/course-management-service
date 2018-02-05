@@ -7,7 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jianhan/course-management-service/db"
 	"github.com/jianhan/course-management-service/handlers"
-	pb "github.com/jianhan/course-management-service/proto/course"
+	pb "github.com/jianhan/course-management-service/proto"
 	"github.com/jianhan/course-management-service/repositories"
 	cfgreader "github.com/jianhan/pkg/configs"
 	micro "github.com/micro/go-micro"

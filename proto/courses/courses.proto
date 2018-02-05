@@ -1,14 +1,14 @@
 syntax = "proto3";
 
-package courses;
-option go_package = "proto";
+package go.micro.srv.cm.courses;
+option go_package="courses";
 
 import "google/protobuf/timestamp.proto";
-import "github.com/jianhan/course-management-service/proto/mysql.proto";
+import "github.com/jianhan/course-management-service/proto/mysql/mysql.proto";
 
 // Service declares all RPC calls for courses related functions.
 service Courses {
-	rpc UpsertCourses(UpsertCoursesRequest) returns (mysql.UpsertResult) {}
+	rpc UpsertCourses(UpsertCoursesRequest) returns (go.micro.srv.cm.mysql.UpsertResult) {}
 	rpc GetCoursesByFilters(GetCoursesByFiltersRequest) returns (GetCoursesByFiltersResponse) {}
 	rpc DeleteCoursesByFilters(DeleteCoursesByFiltersRequest) returns (DeleteCoursesByFiltersResponse) {}
 }
@@ -44,7 +44,7 @@ message FilterSet {
 	repeated string slugs = 4;
 	google.protobuf.Timestamp start = 5;
 	google.protobuf.Timestamp end = 6;
-	mysql.BoolField visible = 7;
+	go.micro.srv.cm.mysql.BoolField visible = 7;
 }
 
 // UpsertCoursesRequest contains data when upserts courses.
@@ -57,8 +57,8 @@ message UpsertCoursesRequest {
 // according to filter set.
 message GetCoursesByFiltersRequest {
 	FilterSet filter_set = 1;
-	mysql.Pagination pagination = 8;
-	mysql.Sort sort = 9;
+	go.micro.srv.cm.mysql.Pagination pagination = 8;
+	go.micro.srv.cm.mysql.Sort sort = 9;
 }
 
 // GetCoursesByFiltersResponse contains responses data for courses.
