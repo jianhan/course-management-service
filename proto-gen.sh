@@ -2,7 +2,7 @@
 echo start to generate protobuf
 for file in `find proto | grep -E "\.proto$"`; do
 echo generating "$file"
-protoc --go_out=plugins=micro,grpc:. $file
+protoc -I. -I${GOPATH}/src --go_out=plugins=micro,grpc:. $file
 done
 
 echo start to inject protobuf

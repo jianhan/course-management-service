@@ -9,7 +9,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
-	pb "github.com/jianhan/course-management-service/proto/course"
+	pb "github.com/jianhan/course-management-service/proto"
 )
 
 // CourseRepository contains collection of methods for repository.

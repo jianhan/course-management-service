@@ -1,24 +1,17 @@
 package handlers
 
-import (
-	"context"
-
-	pcourse "github.com/jianhan/course-management-service/proto/course"
-	merrors "github.com/micro/go-micro/errors"
-)
-
-// UpsertCategories upsert multiply categories.
-func (c *CourseManagement) UpsertCategories(ctx context.Context, req *pcourse.UpsertCategoriesRequest, rsp *pcourse.UpsertResult) (err error) {
-	if err = req.Validate(); err != nil {
-		return merrors.BadRequest(API+".UpsertCategories", err.Error())
-	}
-	result, err := c.CategoryRepository.UpsertCategories(req.Categories)
-	if err != nil {
-		return merrors.InternalServerError(API+".GetCategoriesByFilters", err.Error())
-	}
-	rsp.RowsAffected, err = result.RowsAffected()
-	return
-}
+// // UpsertCategories upsert multiply categories.
+// func (c *CourseManagement) UpsertCategories(ctx context.Context, req *pcourse.UpsertCategoriesRequest, rsp *pcourse.UpsertResult) (err error) {
+// 	if err = req.Validate(); err != nil {
+// 		return merrors.BadRequest(API+".UpsertCategories", err.Error())
+// 	}
+// 	result, err := c.CategoryRepository.UpsertCategories(req.Categories)
+// 	if err != nil {
+// 		return merrors.InternalServerError(API+".GetCategoriesByFilters", err.Error())
+// 	}
+// 	rsp.RowsAffected, err = result.RowsAffected()
+// 	return
+// }
 
 //
 // // GetCategoriesByFilters retrieves categories by filters.

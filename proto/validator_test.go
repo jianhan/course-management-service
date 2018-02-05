@@ -1,4 +1,4 @@
-package course_test
+package proto_test
 
 // func TestCourses_Validate(t *testing.T) {
 // 	type fields struct {

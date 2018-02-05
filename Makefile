@@ -146,3 +146,8 @@ help:
 .PHONY: version
 version:
 	@echo $(VERSION)
+pb:
+	for f in proto/**/*.proto; do \
+		protoc -I. -I${GOPATH}/src --go_out=plugins=micro,grpc:. $$f; \
+		echo compiled: $$f; \
+	done
