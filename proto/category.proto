@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package go.micro.srv.category;
+option go_package = "proto";
+
+import "google/protobuf/timestamp.proto";
+
+service CourseManagement {
+	rpc UpsertCategories(UpsertCategoriesRequest) returns (UpsertResult) {}
+	// rpc GetCategoriesByFilters(GetCategoriesByFiltersRequest) returns (GetCategoriesByFiltersResponse) {}
+	// rpc DeleteCategoriesByIDs(DeleteCategoriesByIDsRequest) returns (DeleteCategoriesByIDsResponse) {}
+}
+
+message Category {
+	// @inject_tag: bson:"_id,omitempty"
+	string id = 1;
+	// @inject_tag: validate:"required"
+	string name = 2;
+	string slug = 3;
+	// @inject_tag: validate:"required"
+	string description = 4;
+	uint32 display_order = 5;
+	bool visible = 6;
+	// @inject_tag: bson:"created_at"
+	google.protobuf.Timestamp created_at = 7;
+	// @inject_tag: bson:"updated_at"
+	google.protobuf.Timestamp updated_at = 8;
+	map<string, string> courses = 9;
+}
+
+message CategoryFilterSet {
+	repeated string ids = 1;
+	string text_search = 2;
+	repeated string names = 3;
+	repeated string slugs = 4;
+	BoolField visible = 5;
+}
+
+message UpsertCategoriesRequest {
+  repeated Category categories = 1;
+	bool upsert_courses = 2;
+}
+
+// message GetCategoriesByFiltersRequest {
+// 	CategoryFilterSet filter_set = 1;
+// }
+//
+// message GetCategoriesByFiltersResponse {
+// 	repeated Category categories = 1;
+// }
+//
+// message DeleteCategoriesByIDsRequest {
+// 	repeated string ids = 1;
+// }
+//
+// message DeleteCategoriesByIDsResponse {
+// 	uint32 removed = 1;
+// }

@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package go.micro.srv.course;
+option go_package = "proto";
+
+import "google/protobuf/timestamp.proto";
+import "mysql.proto"
+
+// Service declares all RPC calls for courses related functions.
+service Courses {
+	rpc UpsertCourses(UpsertCoursesRequest) returns (UpsertResult) {}
+	rpc GetCoursesByFilters(GetCoursesByFiltersRequest) returns (GetCoursesByFiltersResponse) {}
+	rpc DeleteCoursesByFilters(DeleteCoursesByFiltersRequest) returns (DeleteCoursesByFiltersResponse) {}
+}
+
+// Course defines data structure of Course.
+message Course {
+	// @inject_tag: bson:"_id,omitempty"
+	string id = 1;
+	// @inject_tag: validate:"required"
+	string name = 2;
+	string slug = 3;
+	// @inject_tag: bson:"display_order,omitempty"
+	uint64 display_order = 4;
+	// @inject_tag: validate:"required"
+	string description = 5;
+	bool visible = 6;
+	// @inject_tag: validate:"required"
+	google.protobuf.Timestamp start = 7;
+	// @inject_tag: validate:"required"
+	google.protobuf.Timestamp end = 8;
+	// @inject_tag: bson:"created_at"
+	google.protobuf.Timestamp created_at = 9;
+	// @inject_tag: bson:"updated_at"
+	google.protobuf.Timestamp updated_at = 10;
+	map<string, string> categories = 11;
+}
+
+// FilterSet contains data for filtering courses.
+message FilterSet {
+	repeated string ids = 1;
+	string text_search = 2;
+	repeated string names = 3;
+	repeated string slugs = 4;
+	google.protobuf.Timestamp start = 5;
+	google.protobuf.Timestamp end = 6;
+	BoolField visible = 7;
+}
+
+// UpsertCoursesRequest contains data when upserts courses.
+message UpsertCoursesRequest {
+	repeated Course courses = 1;
+	bool upsert_categories = 2;
+}
+
+// GetCoursesByFiltersRequest contains fields when querying for courses
+// according to filter set.
+message GetCoursesByFiltersRequest {
+	FilterSet filter_set = 1;
+	Pagination pagination = 8;
+	Sort sort = 9;
+}
+
+// GetCoursesByFiltersResponse contains responses data for courses.
+message GetCoursesByFiltersResponse {
+	repeated Course courses = 1;
+}
+
+// DeleteCoursesByFiltersRequest represent request data structure for deleting
+// courses by filters.
+message DeleteCoursesByFiltersRequest {
+	FilterSet filter_set = 1;
+}
+
+// DeleteCoursesByFiltersResponse contains data when courses are deleted.
+message DeleteCoursesByFiltersResponse {
+	int64 deleted = 1;
+}
