@@ -4,10 +4,10 @@ package go.micro.srv.cm.categories;
 option go_package="categories";
 
 import "google/protobuf/timestamp.proto";
-import "github.com/jianhan/course-management-service/proto/mysql/mysql.proto";
+import "github.com/jianhan/pkg/proto/mysql/mysql.proto";
 
 service Categories {
-	rpc UpsertCategories(UpsertCategoriesRequest) returns (go.micro.srv.cm.mysql.UpsertResult) {}
+	rpc UpsertCategories(UpsertCategoriesRequest) returns (go.micro.srv.pkg.mysql.UpsertResult) {}
 	// rpc GetCategoriesByFilters(GetCategoriesByFiltersRequest) returns (GetCategoriesByFiltersResponse) {}
 	// rpc DeleteCategoriesByIDs(DeleteCategoriesByIDsRequest) returns (DeleteCategoriesByIDsResponse) {}
 }
@@ -34,7 +34,7 @@ message CategoryFilterSet {
 	string text_search = 2;
 	repeated string names = 3;
 	repeated string slugs = 4;
-	go.micro.srv.cm.mysql.BoolField visible = 5;
+	go.micro.srv.pkg.mysql.BoolField visible = 5;
 }
 
 message UpsertCategoriesRequest {
