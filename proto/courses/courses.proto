@@ -36,12 +36,9 @@ message Course {
 
 // FilterSet contains data for filtering courses.
 message FilterSet {
-  // @inject_tag: valid:"length:(1),optional~Must provide at least one ID."
 	repeated string ids = 1;
 	string text_search = 2;
-	// @inject_tag: valid:"length:(1),optional~Must provide at least one name."
 	repeated string names = 3;
-	// @inject_tag: valid:"length:(1),optional~Must provide at least one slug."
 	repeated string slugs = 4;
 	google.protobuf.Timestamp start = 5;
 	google.protobuf.Timestamp end = 6;
@@ -50,7 +47,6 @@ message FilterSet {
 
 // UpsertCoursesRequest contains data when upserts courses.
 message UpsertCoursesRequest {
-	// @inject_tag: valid:"length:(1)~Please provide at least one course to update."
 	repeated Course courses = 1;
 	bool upsert_categories = 2;
 }

@@ -4,8 +4,8 @@ import (
 	"context"
 
 	pcourse "github.com/jianhan/course-management-service/proto/courses"
-	pmysql "github.com/jianhan/course-management-service/proto/mysql"
 	"github.com/jianhan/course-management-service/repositories"
+	pmysql "github.com/jianhan/pkg/proto/mysql"
 	merrors "github.com/micro/go-micro/errors"
 )
 
@@ -32,6 +32,9 @@ func (c *Courses) UpsertCourses(ctx context.Context, req *pcourse.UpsertCoursesR
 
 // GetCoursesByFilters retrieves courses by filters.
 func (c *Courses) GetCoursesByFilters(ctx context.Context, req *pcourse.GetCoursesByFiltersRequest, rsp *pcourse.GetCoursesByFiltersResponse) (err error) {
+	if err = req.Validate(); err != nil {
+		return err
+	}
 	if rsp.Courses, err = c.CourseRepository.GetCoursesByFilters(req.FilterSet, req.Sort, req.Pagination); err != nil {
 		return err
 	}

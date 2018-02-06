@@ -146,13 +146,13 @@ func (m *Course) GetCategories() map[string]string {
 
 // FilterSet contains data for filtering courses.
 type FilterSet struct {
-	// @inject_tag: valid:"length:(1),optional~Must provide at least one ID."
-	Ids        []string `protobuf:"bytes,1,rep,name=ids" json:"ids,omitempty" valid:"length:(1),optional~Must provide at least one ID."`
+	// @inject_tag: valid:"length(1,100),optional~Must provide at least one ID."
+	Ids        []string `protobuf:"bytes,1,rep,name=ids" json:"ids,omitempty" valid:"length(1,100),optional~Must provide at least one ID."`
 	TextSearch string   `protobuf:"bytes,2,opt,name=text_search,json=textSearch" json:"text_search,omitempty"`
-	// @inject_tag: valid:"length:(1),optional~Must provide at least one name."
-	Names []string `protobuf:"bytes,3,rep,name=names" json:"names,omitempty" valid:"length:(1),optional~Must provide at least one name."`
-	// @inject_tag: valid:"length:(1),optional~Must provide at least one slug."
-	Slugs   []string                          `protobuf:"bytes,4,rep,name=slugs" json:"slugs,omitempty" valid:"length:(1),optional~Must provide at least one slug."`
+	// @inject_tag: valid:"length(1),optional~Must provide at least one name."
+	Names []string `protobuf:"bytes,3,rep,name=names" json:"names,omitempty" valid:"length(1),optional~Must provide at least one name."`
+	// @inject_tag: valid:"length(1),optional~Must provide at least one slug."
+	Slugs   []string                          `protobuf:"bytes,4,rep,name=slugs" json:"slugs,omitempty" valid:"length(1),optional~Must provide at least one slug."`
 	Start   *google_protobuf.Timestamp        `protobuf:"bytes,5,opt,name=start" json:"start,omitempty"`
 	End     *google_protobuf.Timestamp        `protobuf:"bytes,6,opt,name=end" json:"end,omitempty"`
 	Visible *go_micro_srv_pkg_mysql.BoolField `protobuf:"bytes,7,opt,name=visible" json:"visible,omitempty"`
@@ -214,8 +214,8 @@ func (m *FilterSet) GetVisible() *go_micro_srv_pkg_mysql.BoolField {
 
 // UpsertCoursesRequest contains data when upserts courses.
 type UpsertCoursesRequest struct {
-	// @inject_tag: valid:"length:(1)~Please provide at least one course to update."
-	Courses          []*Course `protobuf:"bytes,1,rep,name=courses" json:"courses,omitempty" valid:"length:(1)~Please provide at least one course to update."`
+	// @inject_tag: valid:"length(1)~Please provide at least one course to update."
+	Courses          []*Course `protobuf:"bytes,1,rep,name=courses" json:"courses,omitempty" valid:"length(1)~Please provide at least one course to update."`
 	UpsertCategories bool      `protobuf:"varint,2,opt,name=upsert_categories,json=upsertCategories" json:"upsert_categories,omitempty"`
 }
 
