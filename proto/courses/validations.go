@@ -11,6 +11,16 @@ import (
 	"github.com/micro/protobuf/ptypes"
 )
 
+// Validate performs validation for request.
+func (r *GetCoursesByFiltersRequest) Validate() error {
+	if r.FilterSet != nil {
+		if err := r.FilterSet.Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Validate checks if any invalid slugs or any invalid UUIDs.
 func (r *UpsertCoursesRequest) Validate() error {
 	// Struct validation
@@ -45,16 +55,6 @@ func (r *DeleteCoursesByFiltersRequest) Validate() error {
 	}
 	if _, err := govalidator.ValidateStruct(r.FilterSet); err != nil {
 		return err
-	}
-	return nil
-}
-
-// Validate performs validation for request.
-func (r *GetCoursesByFiltersRequest) Validate() error {
-	if r.FilterSet != nil {
-		if err := r.FilterSet.Validate(); err != nil {
-			return err
-		}
 	}
 	return nil
 }

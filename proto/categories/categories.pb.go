@@ -38,20 +38,15 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Category struct {
-	// @inject_tag: bson:"_id,omitempty"
-	Id string `protobuf:"bytes,1,opt,name=id" json:"id,omitempty" bson:"_id,omitempty"`
-	// @inject_tag: validate:"required"
-	Name string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty" validate:"required"`
-	Slug string `protobuf:"bytes,3,opt,name=slug" json:"slug,omitempty"`
-	// @inject_tag: validate:"required"
-	Description  string `protobuf:"bytes,4,opt,name=description" json:"description,omitempty" validate:"required"`
-	DisplayOrder uint32 `protobuf:"varint,5,opt,name=display_order,json=displayOrder" json:"display_order,omitempty"`
-	Visible      bool   `protobuf:"varint,6,opt,name=visible" json:"visible,omitempty"`
-	// @inject_tag: bson:"created_at"
-	CreatedAt *google_protobuf.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt" json:"created_at,omitempty" bson:"created_at"`
-	// @inject_tag: bson:"updated_at"
-	UpdatedAt *google_protobuf.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt" json:"updated_at,omitempty" bson:"updated_at"`
-	Courses   map[string]string          `protobuf:"bytes,9,rep,name=courses" json:"courses,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Id           string                     `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
+	Name         string                     `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	Slug         string                     `protobuf:"bytes,3,opt,name=slug" json:"slug,omitempty"`
+	Description  string                     `protobuf:"bytes,4,opt,name=description" json:"description,omitempty"`
+	DisplayOrder uint32                     `protobuf:"varint,5,opt,name=display_order,json=displayOrder" json:"display_order,omitempty"`
+	Visible      bool                       `protobuf:"varint,6,opt,name=visible" json:"visible,omitempty"`
+	CreatedAt    *google_protobuf.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt" json:"created_at,omitempty"`
+	UpdatedAt    *google_protobuf.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt" json:"updated_at,omitempty"`
+	Courses      map[string]string          `protobuf:"bytes,9,rep,name=courses" json:"courses,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 }
 
 func (m *Category) Reset()                    { *m = Category{} }

@@ -13,18 +13,13 @@ service Categories {
 }
 
 message Category {
-	// @inject_tag: bson:"_id,omitempty"
 	string id = 1;
-	// @inject_tag: validate:"required"
 	string name = 2;
 	string slug = 3;
-	// @inject_tag: validate:"required"
 	string description = 4;
 	uint32 display_order = 5;
 	bool visible = 6;
-	// @inject_tag: bson:"created_at"
 	google.protobuf.Timestamp created_at = 7;
-	// @inject_tag: bson:"updated_at"
 	google.protobuf.Timestamp updated_at = 8;
 	map<string, string> courses = 9;
 }

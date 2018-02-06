@@ -15,19 +15,13 @@ service Courses {
 
 // Course defines data structure of Course.
 message Course {
-	// @inject_tag: valid:"uuid,optional~Invalid ID format."
 	string id = 1;
-	// @inject_tag: valid:"required~Name of course is required."
 	string name = 2;
 	string slug = 3;
-	// @inject_tag: valid:"int~Display order is not a valid integer."
 	uint64 display_order = 4;
-	// @inject_tag: valid:"required~Description is required."
 	string description = 5;
 	bool visible = 6;
-	// @inject_tag: valid:"required~Start date and time is required."
 	google.protobuf.Timestamp start = 7;
-	// @inject_tag: valid:"required~End date and time is required."
 	google.protobuf.Timestamp end = 8;
 	google.protobuf.Timestamp created_at = 9;
 	google.protobuf.Timestamp updated_at = 10;
