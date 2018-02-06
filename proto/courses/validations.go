@@ -2,12 +2,14 @@ package courses
 
 import (
 	"errors"
-	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/asaskevich/govalidator"
+	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/gosimple/slug"
-	"github.com/jianhan/pkg/validation"
+	pkgvalidation "github.com/jianhan/pkg/validation"
 	"github.com/micro/protobuf/ptypes"
 )
 
@@ -25,12 +27,8 @@ func (r *GetCoursesByFiltersRequest) Validate() error {
 func (r *UpsertCoursesRequest) Validate() error {
 	// Struct validation
 	for k, v := range r.Courses {
-		if _, err := govalidator.ValidateStruct(v); err != nil {
+		if err := v.Validate(); err != nil {
 			return err
-		}
-		// if slug is not empty, regardless if it is insert or update, throw error.
-		if v.Slug != "" && !slug.IsSlug(v.Slug) {
-			return fmt.Errorf("Invalid slug: %s", v.Slug)
 		}
 		// if slug is empty then automatically generate one based on name.
 		if v.Slug == "" {
@@ -62,14 +60,28 @@ func (r *DeleteCoursesByFiltersRequest) Validate() error {
 // Validate performs validation on filter set.
 func (f *FilterSet) Validate() error {
 	if len(f.Ids) > 0 {
-		if err := validation.ValidateSliceUUID(f.Ids); err != nil {
+		if err := pkgvalidation.ValidateSliceUUID(f.Ids); err != nil {
 			return err
 		}
 	}
 	if f.Slugs != nil && len(f.Slugs) > 0 {
-		if err := validation.ValidateSliceSlugs(f.Slugs); err != nil {
+		if err := pkgvalidation.ValidateSliceSlugs(f.Slugs); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// Validate performs validation on course struct.
+func (c Course) Validate() error {
+	return validation.ValidateStruct(&c,
+		// ID can be empty but it must be UUID if it is not empty.
+		validation.Field(&c.Id, is.UUID.Error("invalid UUID")),
+		// Name is required.
+		validation.Field(&c.Name, validation.Required.Error("course name is required")),
+		// Slug can be empty but must be a valid slug if it is not.
+		validation.Field(&c.Slug, validation.Match(regexp.MustCompile("^[a-z0-9-]+$")).Error("slug must be in a valid format")),
+		// Description is required.
+		validation.Field(&c.Description, validation.Required.Error("course description is required")),
+	)
 }
