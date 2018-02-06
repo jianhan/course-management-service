@@ -7,7 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jianhan/course-management-service/db"
 	"github.com/jianhan/course-management-service/handlers"
-	pb "github.com/jianhan/course-management-service/proto"
+	pcourses "github.com/jianhan/course-management-service/proto/courses"
 	"github.com/jianhan/course-management-service/repositories"
 	cfgreader "github.com/jianhan/pkg/configs"
 	micro "github.com/micro/go-micro"
@@ -33,11 +33,10 @@ func main() {
 		micro.Metadata(serviceConfigs.Metadata),
 	)
 	srv.Init()
-	pb.RegisterCourseManagerHandler(
+	pcourses.RegisterCoursesHandler(
 		srv.Server(),
-		&handlers.CourseManagement{
-			CourseRepository:   repositories.NewCourseRepository(db),
-			CategoryRepository: repositories.NewCategoryRepository(db),
+		&handlers.Courses{
+			CourseRepository: repositories.NewCourseRepository(db),
 		},
 	)
 	if err := srv.Run(); err != nil {

@@ -43,24 +43,22 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 // Course defines data structure of Course.
 type Course struct {
-	// @inject_tag: bson:"_id,omitempty"
-	Id string `protobuf:"bytes,1,opt,name=id" json:"id,omitempty" bson:"_id,omitempty"`
-	// @inject_tag: validate:"required"
-	Name string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty" validate:"required"`
+	// @inject_tag: valid:"uuid,optional~Invalid ID format."
+	Id string `protobuf:"bytes,1,opt,name=id" json:"id,omitempty" valid:"uuid,optional~Invalid ID format."`
+	// @inject_tag: valid:"required~Name of course is required."
+	Name string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty" valid:"required~Name of course is required."`
 	Slug string `protobuf:"bytes,3,opt,name=slug" json:"slug,omitempty"`
-	// @inject_tag: bson:"display_order,omitempty"
-	DisplayOrder uint64 `protobuf:"varint,4,opt,name=display_order,json=displayOrder" json:"display_order,omitempty" bson:"display_order,omitempty"`
-	// @inject_tag: validate:"required"
-	Description string `protobuf:"bytes,5,opt,name=description" json:"description,omitempty" validate:"required"`
+	// @inject_tag: valid:"int~Display order is not a valid integer."
+	DisplayOrder uint64 `protobuf:"varint,4,opt,name=display_order,json=displayOrder" json:"display_order,omitempty" valid:"int~Display order is not a valid integer."`
+	// @inject_tag: valid:"required~Description is required."
+	Description string `protobuf:"bytes,5,opt,name=description" json:"description,omitempty" valid:"required~Description is required."`
 	Visible     bool   `protobuf:"varint,6,opt,name=visible" json:"visible,omitempty"`
-	// @inject_tag: validate:"required"
-	Start *google_protobuf.Timestamp `protobuf:"bytes,7,opt,name=start" json:"start,omitempty" validate:"required"`
-	// @inject_tag: validate:"required"
-	End *google_protobuf.Timestamp `protobuf:"bytes,8,opt,name=end" json:"end,omitempty" validate:"required"`
-	// @inject_tag: bson:"created_at"
-	CreatedAt *google_protobuf.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt" json:"created_at,omitempty" bson:"created_at"`
-	// @inject_tag: bson:"updated_at"
-	UpdatedAt  *google_protobuf.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt" json:"updated_at,omitempty" bson:"updated_at"`
+	// @inject_tag: valid:"required~Start date and time is required."
+	Start *google_protobuf.Timestamp `protobuf:"bytes,7,opt,name=start" json:"start,omitempty" valid:"required~Start date and time is required."`
+	// @inject_tag: valid:"required~End date and time is required."
+	End        *google_protobuf.Timestamp `protobuf:"bytes,8,opt,name=end" json:"end,omitempty" valid:"required~End date and time is required."`
+	CreatedAt  *google_protobuf.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt" json:"created_at,omitempty"`
+	UpdatedAt  *google_protobuf.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt" json:"updated_at,omitempty"`
 	Categories map[string]string          `protobuf:"bytes,11,rep,name=categories" json:"categories,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 }
 
@@ -148,13 +146,16 @@ func (m *Course) GetCategories() map[string]string {
 
 // FilterSet contains data for filtering courses.
 type FilterSet struct {
-	Ids        []string                         `protobuf:"bytes,1,rep,name=ids" json:"ids,omitempty"`
-	TextSearch string                           `protobuf:"bytes,2,opt,name=text_search,json=textSearch" json:"text_search,omitempty"`
-	Names      []string                         `protobuf:"bytes,3,rep,name=names" json:"names,omitempty"`
-	Slugs      []string                         `protobuf:"bytes,4,rep,name=slugs" json:"slugs,omitempty"`
-	Start      *google_protobuf.Timestamp       `protobuf:"bytes,5,opt,name=start" json:"start,omitempty"`
-	End        *google_protobuf.Timestamp       `protobuf:"bytes,6,opt,name=end" json:"end,omitempty"`
-	Visible    *go_micro_srv_cm_mysql.BoolField `protobuf:"bytes,7,opt,name=visible" json:"visible,omitempty"`
+	// @inject_tag: valid:"length:(1),optional~Must provide at least one ID."
+	Ids        []string `protobuf:"bytes,1,rep,name=ids" json:"ids,omitempty" valid:"length:(1),optional~Must provide at least one ID."`
+	TextSearch string   `protobuf:"bytes,2,opt,name=text_search,json=textSearch" json:"text_search,omitempty"`
+	// @inject_tag: valid:"length:(1),optional~Must provide at least one name."
+	Names []string `protobuf:"bytes,3,rep,name=names" json:"names,omitempty" valid:"length:(1),optional~Must provide at least one name."`
+	// @inject_tag: valid:"length:(1),optional~Must provide at least one slug."
+	Slugs   []string                         `protobuf:"bytes,4,rep,name=slugs" json:"slugs,omitempty" valid:"length:(1),optional~Must provide at least one slug."`
+	Start   *google_protobuf.Timestamp       `protobuf:"bytes,5,opt,name=start" json:"start,omitempty"`
+	End     *google_protobuf.Timestamp       `protobuf:"bytes,6,opt,name=end" json:"end,omitempty"`
+	Visible *go_micro_srv_cm_mysql.BoolField `protobuf:"bytes,7,opt,name=visible" json:"visible,omitempty"`
 }
 
 func (m *FilterSet) Reset()                    { *m = FilterSet{} }
@@ -213,7 +214,8 @@ func (m *FilterSet) GetVisible() *go_micro_srv_cm_mysql.BoolField {
 
 // UpsertCoursesRequest contains data when upserts courses.
 type UpsertCoursesRequest struct {
-	Courses          []*Course `protobuf:"bytes,1,rep,name=courses" json:"courses,omitempty"`
+	// @inject_tag: valid:"length:(1)~Please provide at least one course to update."
+	Courses          []*Course `protobuf:"bytes,1,rep,name=courses" json:"courses,omitempty" valid:"length:(1)~Please provide at least one course to update."`
 	UpsertCategories bool      `protobuf:"varint,2,opt,name=upsert_categories,json=upsertCategories" json:"upsert_categories,omitempty"`
 }
 

@@ -3,7 +3,8 @@ package handlers
 import (
 	"context"
 
-	pcourse "github.com/jianhan/course-management-service/proto"
+	pcourse "github.com/jianhan/course-management-service/proto/courses"
+	pmysql "github.com/jianhan/course-management-service/proto/mysql"
 	"github.com/jianhan/course-management-service/repositories"
 	merrors "github.com/micro/go-micro/errors"
 )
@@ -12,13 +13,12 @@ import (
 const API = "go_micro_srv_course"
 
 // Courses handles all incomming request related to course.
-type CourseManagement struct {
-	CourseRepository   repositories.CourseRepository
-	CategoryRepository repositories.CategoryRepository
+type Courses struct {
+	CourseRepository repositories.CourseRepository
 }
 
 // UpsertCourses upsert multiply courses.
-func (c *CourseManagement) UpsertCourses(ctx context.Context, req *pcourse.UpsertCoursesRequest, rsp *pcourse.UpsertResult) (err error) {
+func (c *Courses) UpsertCourses(ctx context.Context, req *pcourse.UpsertCoursesRequest, rsp *pmysql.UpsertResult) (err error) {
 	if err = req.Validate(); err != nil {
 		return merrors.BadRequest(API+".GetCoursesByFilters", err.Error())
 	}
@@ -31,7 +31,7 @@ func (c *CourseManagement) UpsertCourses(ctx context.Context, req *pcourse.Upser
 }
 
 // GetCoursesByFilters retrieves courses by filters.
-func (c *CourseManagement) GetCoursesByFilters(ctx context.Context, req *pcourse.GetCoursesByFiltersRequest, rsp *pcourse.GetCoursesByFiltersResponse) (err error) {
+func (c *Courses) GetCoursesByFilters(ctx context.Context, req *pcourse.GetCoursesByFiltersRequest, rsp *pcourse.GetCoursesByFiltersResponse) (err error) {
 	if rsp.Courses, err = c.CourseRepository.GetCoursesByFilters(req.FilterSet, req.Sort, req.Pagination); err != nil {
 		return err
 	}
@@ -39,7 +39,7 @@ func (c *CourseManagement) GetCoursesByFilters(ctx context.Context, req *pcourse
 }
 
 // DeleteCoursesByFilters remove courses according to filter set.
-func (c *CourseManagement) DeleteCoursesByFilters(ctx context.Context, req *pcourse.DeleteCoursesByFiltersRequest, rsp *pcourse.DeleteCoursesByFiltersResponse) (err error) {
+func (c *Courses) DeleteCoursesByFilters(ctx context.Context, req *pcourse.DeleteCoursesByFiltersRequest, rsp *pcourse.DeleteCoursesByFiltersResponse) (err error) {
 	if err = req.Validate(); err != nil {
 		return merrors.BadRequest(API+".DeleteCoursesByFilters", err.Error())
 	}

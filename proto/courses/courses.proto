@@ -15,32 +15,33 @@ service Courses {
 
 // Course defines data structure of Course.
 message Course {
-	// @inject_tag: bson:"_id,omitempty"
+	// @inject_tag: valid:"uuid,optional~Invalid ID format."
 	string id = 1;
-	// @inject_tag: validate:"required"
+	// @inject_tag: valid:"required~Name of course is required."
 	string name = 2;
 	string slug = 3;
-	// @inject_tag: bson:"display_order,omitempty"
+	// @inject_tag: valid:"int~Display order is not a valid integer."
 	uint64 display_order = 4;
-	// @inject_tag: validate:"required"
+	// @inject_tag: valid:"required~Description is required."
 	string description = 5;
 	bool visible = 6;
-	// @inject_tag: validate:"required"
+	// @inject_tag: valid:"required~Start date and time is required."
 	google.protobuf.Timestamp start = 7;
-	// @inject_tag: validate:"required"
+	// @inject_tag: valid:"required~End date and time is required."
 	google.protobuf.Timestamp end = 8;
-	// @inject_tag: bson:"created_at"
 	google.protobuf.Timestamp created_at = 9;
-	// @inject_tag: bson:"updated_at"
 	google.protobuf.Timestamp updated_at = 10;
 	map<string, string> categories = 11;
 }
 
 // FilterSet contains data for filtering courses.
 message FilterSet {
+  // @inject_tag: valid:"length:(1),optional~Must provide at least one ID."
 	repeated string ids = 1;
 	string text_search = 2;
+	// @inject_tag: valid:"length:(1),optional~Must provide at least one name."
 	repeated string names = 3;
+	// @inject_tag: valid:"length:(1),optional~Must provide at least one slug."
 	repeated string slugs = 4;
 	google.protobuf.Timestamp start = 5;
 	google.protobuf.Timestamp end = 6;
@@ -49,6 +50,7 @@ message FilterSet {
 
 // UpsertCoursesRequest contains data when upserts courses.
 message UpsertCoursesRequest {
+	// @inject_tag: valid:"length:(1)~Please provide at least one course to update."
 	repeated Course courses = 1;
 	bool upsert_categories = 2;
 }

@@ -2,7 +2,6 @@ PACKAGE  = github.com/jianhan/course-management-service
 DATE    ?= $(shell date +%FT%T%z)
 VERSION ?= $(shell git describe --tags --always --dirty --match=v* 2> /dev/null || \
 			cat $(CURDIR)/.version 2> /dev/null || echo v0)
-GOPATH   = $(CURDIR)/.gopath~
 BIN      = $(GOPATH)/bin
 BUILDBIN = ./bin/github.com/jianhan
 BASE     = $(GOPATH)/src/$(PACKAGE)
@@ -12,7 +11,6 @@ TESTPKGS = $(shell env GOPATH=$(GOPATH) $(GO) list -f '{{ if or .TestGoFiles .XT
 GO      = go
 GODOC   = godoc
 GOFMT   = gofmt
-GLIDE   = glide
 SERVICE = course-management-service
 TIMEOUT = 15
 V = 0
@@ -120,18 +118,7 @@ fmt: ; $(info $(M) running gofmt…) @ ## Run gofmt on all source files
 		$(GOFMT) -l -w $$d/*.go || ret=$$? ; \
 	 done ; exit $$ret
 
-# Dependency management
-
-glide.lock: glide.yaml | $(BASE) ; $(info $(M) updating dependencies…)
-	$Q cd $(BASE) && $(GLIDE) update
-	@touch $@
-vendor: glide.lock | $(BASE) ; $(info $(M) retrieving dependencies…)
-	$Q cd $(BASE) && $(GLIDE) --quiet install
-	@ln -nsf . vendor/src
-	@touch $@
-
 # Misc
-
 .PHONY: clean
 clean: ; $(info $(M) cleaning…)	@ ## Cleanup everything
 	@rm -rf $(GOPATH)
