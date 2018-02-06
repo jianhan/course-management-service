@@ -1,11 +1,9 @@
 package courses
 
 import (
-	"errors"
 	"regexp"
 	"time"
 
-	"github.com/asaskevich/govalidator"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/gosimple/slug"
@@ -48,11 +46,10 @@ func (r *UpsertCoursesRequest) Validate() error {
 // Validate performs validation up on DeleteCoursesByFiltersRequest.
 func (r *DeleteCoursesByFiltersRequest) Validate() error {
 	// when deleting courses never allow empty filter set to wipe out entire table.
-	if r.FilterSet == nil {
-		return errors.New("filter set can not be empty")
-	}
-	if _, err := govalidator.ValidateStruct(r.FilterSet); err != nil {
-		return err
+	if r.FilterSet != nil {
+		if err := r.FilterSet.Validate(); err != nil {
+			return err
+		}
 	}
 	return nil
 }
