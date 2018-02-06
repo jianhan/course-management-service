@@ -7,7 +7,6 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/gosimple/slug"
-	"github.com/jianhan/pkg/validation"
 	"github.com/micro/protobuf/ptypes"
 )
 
@@ -43,23 +42,8 @@ func (r *DeleteCoursesByFiltersRequest) Validate() error {
 	if r.FilterSet == nil {
 		return errors.New("filter set can not be empty")
 	}
-	if err := r.FilterSet.Validate(); err != nil {
+	if _, err := govalidator.ValidateStruct(r.FilterSet); err != nil {
 		return err
-	}
-	return nil
-}
-
-// Validate performs validation on filterSet.
-func (f *FilterSet) Validate() error {
-	if len(f.Ids) > 0 {
-		if err := validation.ValidateSliceUUID(f.Ids); err != nil {
-			return err
-		}
-	}
-	if f.Slugs != nil && len(f.Slugs) > 0 {
-		if err := validation.ValidateSliceSlugs(f.Slugs); err != nil {
-			return err
-		}
 	}
 	return nil
 }
