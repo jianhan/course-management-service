@@ -18,6 +18,9 @@ type CourseRepository interface {
 	UpsertCourses(courses []*pcourses.CourseWithCategories) (result sql.Result, err error)
 	GetCoursesByFilters(filterSet *pcourses.FilterSet, sort *pmysql.Sort, pagination *pmysql.Pagination) ([]*pcourses.Course, error)
 	DeleteCoursesByFilters(filterSet *pcourses.FilterSet) (deleted int64, err error)
+	SyncCategories(courseID string, categoryIDs []string) (result sql.Result, err error)
+	AddCategories(courseID string, categoryIDs []string) (result sql.Result, err error)
+	RemoveCategories(courseID string, categoryIDs []string) (result sql.Result, err error)
 }
 
 // CourseMysql is a mysql implementation of CourseRepository.
@@ -182,5 +185,18 @@ func (c *CourseMysql) DeleteCoursesByFilters(filterSet *pcourses.FilterSet) (del
 	if deleted, err = r.RowsAffected(); err != nil {
 		return
 	}
+	return
+}
+
+func (c *CourseMysql) SyncCategories(courseID string, categoryIDs []string) (result sql.Result, err error) {
+
+	return
+}
+
+func (c *CourseMysql) AddCategories(courseID string, categoryIDs []string) (result sql.Result, err error) {
+	return
+}
+
+func (c *CourseMysql) RemoveCategories(courseID string, categoryIDs []string) (result sql.Result, err error) {
 	return
 }
