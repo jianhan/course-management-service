@@ -39,10 +39,15 @@ message FilterSet {
 	go.micro.srv.pkg.mysql.BoolField visible = 7;
 }
 
+message CourseWithCategories {
+	Course course = 1;
+	repeated string category_ids = 2;
+	bool sync = 3;
+}
+
 // UpsertCoursesRequest contains data when upserts courses.
 message UpsertCoursesRequest {
-	repeated Course courses = 1;
-	bool upsert_categories = 2;
+	repeated CourseWithCategories courses = 1;
 }
 
 // GetCoursesByFiltersRequest contains fields when querying for courses

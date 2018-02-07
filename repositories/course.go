@@ -16,7 +16,7 @@ import (
 
 // CourseRepository contains collection of methods for repository.
 type CourseRepository interface {
-	UpsertCourses(courses []*pcourses.Course, upsertCategories bool) (result sql.Result, err error)
+	UpsertCourses(courses []*pcourses.Course, courseWithCategories *pcourses.CourseWithCategories) (result sql.Result, err error)
 	GetCoursesByFilters(filterSet *pcourses.FilterSet, sort *pmysql.Sort, pagination *pmysql.Pagination) ([]*pcourses.Course, error)
 	DeleteCoursesByFilters(filterSet *pcourses.FilterSet) (deleted int64, err error)
 }
@@ -33,7 +33,7 @@ func NewCourseRepository(db *sql.DB) CourseRepository {
 }
 
 // UpsertCourses update/insert multiple courses.
-func (c *CourseMysql) UpsertCourses(courses []*pcourses.Course, upsertCategories bool) (result sql.Result, err error) {
+func (c *CourseMysql) UpsertCourses(courses []*pcourses.Course, courseWithCategories *pcourses.CourseWithCategories) (result sql.Result, err error) {
 	// TODO: added upsert categories later
 	sql := fmt.Sprintf("INSERT INTO %s (id, name, slug, visible,description, start, end, updated_at) VALUES", c.coursesTable)
 	var placeholders []string
@@ -81,15 +81,9 @@ func (c *CourseMysql) UpsertCourses(courses []*pcourses.Course, upsertCategories
 	return
 }
 
-// // DeleteCoursesByIDs deletes multiply courses by IDs.
-// func (c *Course) DeleteCoursesByIDs(ids []string) (uint32, error) {
-// 	changeInfo, err := c.Session.DB(dbName).C(coursesCollection).RemoveAll(bson.M{"_id": bson.M{"$in": ids}})
-// 	if err != nil {
-// 		return 0, err
-// 	}
-// 	return uint32(changeInfo.Removed), nil
-// }
-//
+func (c *CourseMysql) upsertCourseCategories(courseWithCategories *pcourses.CourseWithCategories) error {
+
+}
 
 func (c *CourseMysql) rowToCourse(f func(dest ...interface{}) error) (course *pcourses.Course, err error) {
 	course = &pcourses.Course{}

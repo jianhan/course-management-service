@@ -1,6 +1,7 @@
 package courses
 
 import (
+	"errors"
 	"regexp"
 	"time"
 
@@ -23,21 +24,52 @@ func (r *GetCoursesByFiltersRequest) Validate() error {
 
 // Validate checks if any invalid slugs or any invalid UUIDs.
 func (r *UpsertCoursesRequest) Validate() error {
+	// validate course with categories if wish to update categories at the same time
+	if r.Courses != nil {
+		for k, v := range r.Courses {
+			if err := v.Validate(); err != nil {
+				return err
+			}
+			if v.Course == nil {
+				return errors.New("Course empty")
+			}
+			if err := v.Course.Validate(); err != nil {
+				return err
+			}
+			// if slug is empty then automatically generate one based on name.
+			if v.Course.Slug == "" {
+				r.Courses[k].Course.Slug = slug.Make(v.Course.Name)
+			}
+			if v.Course.UpdatedAt == nil {
+				t, err := ptypes.TimestampProto(time.Now())
+				if err != nil {
+					return err
+				}
+				r.Courses[k].Course.UpdatedAt = t
+			}
+		}
+	}
+
 	// Struct validation
 	for k, v := range r.Courses {
 		if err := v.Validate(); err != nil {
 			return err
 		}
-		// if slug is empty then automatically generate one based on name.
-		if v.Slug == "" {
-			r.Courses[k].Slug = slug.Make(v.Name)
-		}
-		if v.UpdatedAt == nil {
-			t, err := ptypes.TimestampProto(time.Now())
-			if err != nil {
-				return err
-			}
-			r.Courses[k].UpdatedAt = t
+
+	}
+	return nil
+}
+
+func (c *CourseWithCategories) Validate() error {
+	if c.Course == nil {
+		return errors.New("course can not be empty")
+	}
+	if err := c.Course.Validate(); err != nil {
+		return err
+	}
+	if len(c.CategoryIds) > 0 {
+		if err := pkgvalidation.ValidateSliceUUID(c.CategoryIds); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -81,4 +113,15 @@ func (c Course) Validate() error {
 		// Description is required.
 		validation.Field(&c.Description, validation.Required.Error("course description is required")),
 	)
+}
+
+// Validate performs validation on category IDs.
+func (c CourseWithCategories) Validate() error {
+	if len(c.CategoryIds) == 0 {
+		return errors.New("empty category ids are not allowed")
+	}
+	if err := pkgvalidation.ValidateSliceUUID(c.CategoryIds); err != nil {
+		return err
+	}
+	return nil
 }
