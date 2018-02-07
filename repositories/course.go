@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
-	"github.com/google/uuid"
 
 	pcourses "github.com/jianhan/course-management-service/proto/courses"
 	pmysql "github.com/jianhan/pkg/proto/mysql"
@@ -16,7 +15,7 @@ import (
 
 // CourseRepository contains collection of methods for repository.
 type CourseRepository interface {
-	UpsertCourses(courses []*pcourses.Course, courseWithCategories *pcourses.CourseWithCategories) (result sql.Result, err error)
+	UpsertCourses(courses []*pcourses.CourseWithCategories) (result sql.Result, err error)
 	GetCoursesByFilters(filterSet *pcourses.FilterSet, sort *pmysql.Sort, pagination *pmysql.Pagination) ([]*pcourses.Course, error)
 	DeleteCoursesByFilters(filterSet *pcourses.FilterSet) (deleted int64, err error)
 }
@@ -33,35 +32,32 @@ func NewCourseRepository(db *sql.DB) CourseRepository {
 }
 
 // UpsertCourses update/insert multiple courses.
-func (c *CourseMysql) UpsertCourses(courses []*pcourses.Course, courseWithCategories *pcourses.CourseWithCategories) (result sql.Result, err error) {
+func (c *CourseMysql) UpsertCourses(courses []*pcourses.CourseWithCategories) (result sql.Result, err error) {
 	// TODO: added upsert categories later
 	sql := fmt.Sprintf("INSERT INTO %s (id, name, slug, visible,description, start, end, updated_at) VALUES", c.coursesTable)
 	var placeholders []string
 	var vals []interface{}
 	for _, c := range courses {
-		if c.Id == "" {
-			c.Id = uuid.New().String()
-		}
 		placeholders = append(placeholders, "(?,?,?,?,?,?,?,?)")
-		startTime, tErr := ptypes.Timestamp(c.Start)
+		startTime, tErr := ptypes.Timestamp(c.Course.Start)
 		if tErr != nil {
 			return nil, tErr
 		}
-		endTime, tErr := ptypes.Timestamp(c.End)
+		endTime, tErr := ptypes.Timestamp(c.Course.End)
 		if tErr != nil {
 			return nil, tErr
 		}
-		updatedAtTime, tErr := ptypes.Timestamp(c.UpdatedAt)
+		updatedAtTime, tErr := ptypes.Timestamp(c.Course.UpdatedAt)
 		if tErr != nil {
 			return nil, tErr
 		}
 		vals = append(
 			vals,
-			c.Id,
-			c.Name,
-			c.Slug,
-			c.Visible,
-			c.Description,
+			c.Course.Id,
+			c.Course.Name,
+			c.Course.Slug,
+			c.Course.Visible,
+			c.Course.Description,
 			startTime.Format("2006-01-02 15:04:05"),
 			endTime.Format("2006-01-02 15:04:05"),
 			updatedAtTime.Format("2006-01-02 15:04:05"),
@@ -79,10 +75,6 @@ func (c *CourseMysql) UpsertCourses(courses []*pcourses.Course, courseWithCatego
 		return
 	}
 	return
-}
-
-func (c *CourseMysql) upsertCourseCategories(courseWithCategories *pcourses.CourseWithCategories) error {
-
 }
 
 func (c *CourseMysql) rowToCourse(f func(dest ...interface{}) error) (course *pcourses.Course, err error) {

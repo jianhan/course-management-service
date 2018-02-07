@@ -20,13 +20,9 @@ type Courses struct {
 // UpsertCourses upsert multiply courses.
 func (c *Courses) UpsertCourses(ctx context.Context, req *pcourses.UpsertCoursesRequest, rsp *pmysql.UpsertResult) (err error) {
 	if err = req.Validate(); err != nil {
-		return merrors.BadRequest(API+".GetCoursesByFilters", err.Error())
+		return merrors.BadRequest(API+".UpsertCourses", err.Error())
 	}
-	var courseWithCategories *pcourses.CourseWithCategories
-	if req.CourseWithCategories != nil {
-		courseWithCategories = req.CourseWithCategories
-	}
-	result, err := c.CourseRepository.UpsertCourses(req.Courses, courseWithCategories)
+	result, err := c.CourseRepository.UpsertCourses(req.Courses)
 	if err != nil {
 		return
 	}

@@ -2,11 +2,13 @@ package courses
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
+	"github.com/google/uuid"
 	"github.com/gosimple/slug"
 	pkgvalidation "github.com/jianhan/pkg/validation"
 	"github.com/micro/protobuf/ptypes"
@@ -31,7 +33,7 @@ func (r *UpsertCoursesRequest) Validate() error {
 				return err
 			}
 			if v.Course == nil {
-				return errors.New("Course empty")
+				return errors.New("course empty")
 			}
 			if err := v.Course.Validate(); err != nil {
 				return err
@@ -40,6 +42,11 @@ func (r *UpsertCoursesRequest) Validate() error {
 			if v.Course.Slug == "" {
 				r.Courses[k].Course.Slug = slug.Make(v.Course.Name)
 			}
+			if v.Course.Id == "" {
+				r.Courses[k].Course.Id = uuid.New().String()
+			} else if !slug.IsSlug(v.Course.Id) {
+				return fmt.Errorf("course ID: %s is not a valid UUID", v.Course.Id)
+			}
 			if v.Course.UpdatedAt == nil {
 				t, err := ptypes.TimestampProto(time.Now())
 				if err != nil {
@@ -47,29 +54,6 @@ func (r *UpsertCoursesRequest) Validate() error {
 				}
 				r.Courses[k].Course.UpdatedAt = t
 			}
-		}
-	}
-
-	// Struct validation
-	for k, v := range r.Courses {
-		if err := v.Validate(); err != nil {
-			return err
-		}
-
-	}
-	return nil
-}
-
-func (c *CourseWithCategories) Validate() error {
-	if c.Course == nil {
-		return errors.New("course can not be empty")
-	}
-	if err := c.Course.Validate(); err != nil {
-		return err
-	}
-	if len(c.CategoryIds) > 0 {
-		if err := pkgvalidation.ValidateSliceUUID(c.CategoryIds); err != nil {
-			return err
 		}
 	}
 	return nil
@@ -112,16 +96,19 @@ func (c Course) Validate() error {
 		validation.Field(&c.Slug, validation.Match(regexp.MustCompile("^[a-z0-9-]+$")).Error("slug must be in a valid format")),
 		// Description is required.
 		validation.Field(&c.Description, validation.Required.Error("course description is required")),
+		// Start is required.
+		validation.Field(&c.Start, validation.Required.Error("course start is required")),
+		// End is required.
+		validation.Field(&c.End, validation.Required.Error("course end is required")),
 	)
 }
 
 // Validate performs validation on category IDs.
-func (c CourseWithCategories) Validate() error {
-	if len(c.CategoryIds) == 0 {
-		return errors.New("empty category ids are not allowed")
-	}
-	if err := pkgvalidation.ValidateSliceUUID(c.CategoryIds); err != nil {
-		return err
+func (c *CourseWithCategories) Validate() error {
+	if len(c.CategoryIds) > 0 {
+		if err := pkgvalidation.ValidateSliceUUID(c.CategoryIds); err != nil {
+			return err
+		}
 	}
 	return nil
 }
