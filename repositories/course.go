@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -15,57 +16,74 @@ import (
 
 // CourseRepository contains collection of methods for repository.
 type CourseRepository interface {
-	UpsertCourses(courses []*pcourses.CourseWithCategories) (result sql.Result, err error)
+	UpsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error)
 	GetCoursesByFilters(filterSet *pcourses.FilterSet, sort *pmysql.Sort, pagination *pmysql.Pagination) ([]*pcourses.Course, error)
 	DeleteCoursesByFilters(filterSet *pcourses.FilterSet) (deleted int64, err error)
-	SyncCategories(courseID string, categoryIDs []string) (result sql.Result, err error)
-	AddCategories(courseID string, categoryIDs []string) (result sql.Result, err error)
-	RemoveCategories(courseID string, categoryIDs []string) (result sql.Result, err error)
+	SyncCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error)
+	AddCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error)
+	RemoveCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error)
 }
 
 // CourseMysql is a mysql implementation of CourseRepository.
 type CourseMysql struct {
-	db           *sql.DB
-	coursesTable string
-	coursesCategoriesTable string
+	db                  *sql.DB
+	coursesTable        string
+	courseCategoryTable string
 }
 
 // NewCourseRepository returns a interface of CourseRepository.
 func NewCourseRepository(db *sql.DB) CourseRepository {
-	return &CourseMysql{db: db, coursesTable: "courses", coursesCategoriesTable: "courses_categories"}
+	return &CourseMysql{db: db, coursesTable: "courses", courseCategoryTable: "course_category"}
 }
 
 // UpsertCourses update/insert multiple courses.
-func (c *CourseMysql) UpsertCourses(courses []*pcourses.CourseWithCategories) (result sql.Result, err error) {
+func (c *CourseMysql) UpsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error) {
+	tx, err := c.db.BeginTx(ctx, &sql.TxOptions{Isolation: 0})
+	if err != nil {
+		return
+	}
+	defer tx.Commit()
 	// TODO: added upsert categories later
 	sql := fmt.Sprintf("INSERT INTO %s (id, name, slug, visible,description, start, end, updated_at) VALUES", c.coursesTable)
 	var placeholders []string
 	var vals []interface{}
-	for _, c := range courses {
+	for _, courseWithCategories := range courses {
 		placeholders = append(placeholders, "(?,?,?,?,?,?,?,?)")
-		startTime, tErr := ptypes.Timestamp(c.Course.Start)
+		startTime, tErr := ptypes.Timestamp(courseWithCategories.Course.Start)
 		if tErr != nil {
 			return nil, tErr
 		}
-		endTime, tErr := ptypes.Timestamp(c.Course.End)
+		endTime, tErr := ptypes.Timestamp(courseWithCategories.Course.End)
 		if tErr != nil {
 			return nil, tErr
 		}
-		updatedAtTime, tErr := ptypes.Timestamp(c.Course.UpdatedAt)
+		updatedAtTime, tErr := ptypes.Timestamp(courseWithCategories.Course.UpdatedAt)
 		if tErr != nil {
 			return nil, tErr
 		}
 		vals = append(
 			vals,
-			c.Course.Id,
-			c.Course.Name,
-			c.Course.Slug,
-			c.Course.Visible,
-			c.Course.Description,
+			courseWithCategories.Course.Id,
+			courseWithCategories.Course.Name,
+			courseWithCategories.Course.Slug,
+			courseWithCategories.Course.Visible,
+			courseWithCategories.Course.Description,
 			startTime.Format("2006-01-02 15:04:05"),
 			endTime.Format("2006-01-02 15:04:05"),
 			updatedAtTime.Format("2006-01-02 15:04:05"),
 		)
+		// start to update categories related to course
+		cStmt, cErr := c.db.Prepare(fmt.Sprintf("DELETE FROM %s WHERE course_id = ?", c.courseCategoryTable))
+		if cErr != nil {
+			tx.Rollback()
+			return nil, cErr
+		}
+		_, sErr := cStmt.Exec(courseWithCategories.Course.Id)
+		if sErr != nil {
+			tx.Rollback()
+			return nil, sErr
+		}
+		cStmt.Close()
 	}
 	sql += strings.Join(placeholders, ",")
 	sql += `ON DUPLICATE KEY UPDATE name=VALUES(name), slug=VALUES(slug), visible=VALUES(visible), description=VALUES(description), start=VALUES(start), end=VALUES(end), updated_at=VALUES(updated_at)`
@@ -189,15 +207,24 @@ func (c *CourseMysql) DeleteCoursesByFilters(filterSet *pcourses.FilterSet) (del
 	return
 }
 
-func (c *CourseMysql) SyncCategories(courseID string, categoryIDs []string) (result sql.Result, err error) {
-	stmt. err := c.db.Prepare(fmt.Sprintf("DELETE FROM "))
+// SyncCategories syncs categories for an course by course ID.
+func (c *CourseMysql) SyncCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error) {
+	stmt, err := c.db.Prepare("DELETE FROM ? WHERE course_id = ?")
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+	result, err = stmt.Exec(c.courseCategoryTable, courseID)
+	if err != nil {
+		return
+	}
 	return
 }
 
-func (c *CourseMysql) AddCategories(courseID string, categoryIDs []string) (result sql.Result, err error) {
+func (c *CourseMysql) AddCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error) {
 	return
 }
 
-func (c *CourseMysql) RemoveCategories(courseID string, categoryIDs []string) (result sql.Result, err error) {
+func (c *CourseMysql) RemoveCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error) {
 	return
 }
