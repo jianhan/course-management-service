@@ -27,11 +27,12 @@ type CourseRepository interface {
 type CourseMysql struct {
 	db           *sql.DB
 	coursesTable string
+	coursesCategoriesTable string
 }
 
 // NewCourseRepository returns a interface of CourseRepository.
 func NewCourseRepository(db *sql.DB) CourseRepository {
-	return &CourseMysql{db: db, coursesTable: "courses"}
+	return &CourseMysql{db: db, coursesTable: "courses", coursesCategoriesTable: "courses_categories"}
 }
 
 // UpsertCourses update/insert multiple courses.
@@ -189,7 +190,7 @@ func (c *CourseMysql) DeleteCoursesByFilters(filterSet *pcourses.FilterSet) (del
 }
 
 func (c *CourseMysql) SyncCategories(courseID string, categoryIDs []string) (result sql.Result, err error) {
-
+	stmt. err := c.db.Prepare(fmt.Sprintf("DELETE FROM "))
 	return
 }
 
