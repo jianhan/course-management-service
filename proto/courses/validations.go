@@ -8,7 +8,6 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
-	"github.com/google/uuid"
 	"github.com/gosimple/slug"
 	pkgvalidation "github.com/jianhan/pkg/validation"
 	"github.com/micro/protobuf/ptypes"
@@ -41,11 +40,8 @@ func (r *UpsertCoursesRequest) Validate() error {
 			// if slug is empty then automatically generate one based on name.
 			if v.Course.Slug == "" {
 				r.Courses[k].Course.Slug = slug.Make(v.Course.Name)
-			}
-			if v.Course.Id == "" {
-				r.Courses[k].Course.Id = uuid.New().String()
-			} else if !slug.IsSlug(v.Course.Id) {
-				return fmt.Errorf("course ID: %s is not a valid UUID", v.Course.Id)
+			} else if !slug.IsSlug(v.Course.Slug) {
+				return fmt.Errorf("course ID: %s is not a valid UUID", v.Course.Slug)
 			}
 			if v.Course.UpdatedAt == nil {
 				t, err := ptypes.TimestampProto(time.Now())

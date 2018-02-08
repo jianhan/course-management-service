@@ -8,7 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/google/uuid"
 
 	pcourses "github.com/jianhan/course-management-service/proto/courses"
 	pmysql "github.com/jianhan/pkg/proto/mysql"
@@ -19,9 +21,11 @@ type CourseRepository interface {
 	UpsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error)
 	GetCoursesByFilters(filterSet *pcourses.FilterSet, sort *pmysql.Sort, pagination *pmysql.Pagination) ([]*pcourses.Course, error)
 	DeleteCoursesByFilters(filterSet *pcourses.FilterSet) (deleted int64, err error)
-	SyncCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error)
+	SyncCategories(ctx context.Context, coursesWithCategories []*pcourses.CourseWithCategories) (err error)
 	AddCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error)
 	RemoveCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error)
+	InsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error)
+	UpdateCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error)
 }
 
 // CourseMysql is a mysql implementation of CourseRepository.
@@ -38,16 +42,42 @@ func NewCourseRepository(db *sql.DB) CourseRepository {
 
 // UpsertCourses update/insert multiple courses.
 func (c *CourseMysql) UpsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error) {
-	tx, err := c.db.BeginTx(ctx, &sql.TxOptions{Isolation: 0})
-	if err != nil {
+	inserts, updates := []*pcourses.CourseWithCategories{}, []*pcourses.CourseWithCategories{}
+	for _, c := range courses {
+		if c.Course.Id == "" {
+			inserts = append(inserts, c)
+		} else {
+			updates = append(updates, c)
+		}
+	}
+	r, err := c.InsertCourses(ctx, inserts)
+	r, err = c.UpdateCourses(ctx, updates)
+
+	if err = c.SyncCategories(ctx, courses); err != nil {
+		spew.Dump(err)
 		return
 	}
-	defer tx.Commit()
-	// TODO: added upsert categories later
+	return
+}
+
+func (c *CourseMysql) AddCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error) {
+	return
+}
+
+func (c *CourseMysql) RemoveCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error) {
+	return
+}
+
+func (c *CourseMysql) InsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error) {
+	if len(courses) == 0 {
+		return
+	}
 	sql := fmt.Sprintf("INSERT INTO %s (id, name, slug, visible,description, start, end, updated_at) VALUES", c.coursesTable)
 	var placeholders []string
 	var vals []interface{}
 	for _, courseWithCategories := range courses {
+		newId, _ := uuid.NewUUID()
+		courseWithCategories.Course.Id = newId.String()
 		placeholders = append(placeholders, "(?,?,?,?,?,?,?,?)")
 		startTime, tErr := ptypes.Timestamp(courseWithCategories.Course.Start)
 		if tErr != nil {
@@ -72,21 +102,8 @@ func (c *CourseMysql) UpsertCourses(ctx context.Context, courses []*pcourses.Cou
 			endTime.Format("2006-01-02 15:04:05"),
 			updatedAtTime.Format("2006-01-02 15:04:05"),
 		)
-		// start to update categories related to course
-		cStmt, cErr := c.db.Prepare(fmt.Sprintf("DELETE FROM %s WHERE course_id = ?", c.courseCategoryTable))
-		if cErr != nil {
-			tx.Rollback()
-			return nil, cErr
-		}
-		_, sErr := cStmt.Exec(courseWithCategories.Course.Id)
-		if sErr != nil {
-			tx.Rollback()
-			return nil, sErr
-		}
-		cStmt.Close()
 	}
 	sql += strings.Join(placeholders, ",")
-	sql += `ON DUPLICATE KEY UPDATE name=VALUES(name), slug=VALUES(slug), visible=VALUES(visible), description=VALUES(description), start=VALUES(start), end=VALUES(end), updated_at=VALUES(updated_at)`
 	stmt, err := c.db.Prepare(sql)
 	if err != nil {
 		return
@@ -95,6 +112,45 @@ func (c *CourseMysql) UpsertCourses(ctx context.Context, courses []*pcourses.Cou
 	result, err = stmt.Exec(vals...)
 	if err != nil {
 		return
+	}
+	return
+}
+
+func (c *CourseMysql) UpdateCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error) {
+	if len(courses) == 0 {
+		return
+	}
+	sql := fmt.Sprintf(`UPDATE %s
+											SET (name = ?, slug = ?, visible = ?, description = ?, start = ?, end = ?, updated_at = ?)
+											WHERE id = ?`, c.coursesTable)
+	stmt, err := c.db.Prepare(sql)
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+	for _, courseWithCategories := range courses {
+		startTime, tErr := ptypes.Timestamp(courseWithCategories.Course.Start)
+		if tErr != nil {
+			return nil, tErr
+		}
+		endTime, tErr := ptypes.Timestamp(courseWithCategories.Course.End)
+		if tErr != nil {
+			return nil, tErr
+		}
+		updatedAtTime := time.Now()
+		result, err = stmt.Exec(
+			courseWithCategories.Course.Name,
+			courseWithCategories.Course.Slug,
+			courseWithCategories.Course.Visible,
+			courseWithCategories.Course.Description,
+			startTime.Format("2006-01-02 15:04:05"),
+			endTime.Format("2006-01-02 15:04:05"),
+			updatedAtTime.Format("2006-01-02 15:04:05"),
+			courseWithCategories.Course.Id,
+		)
+		if err != nil {
+			return
+		}
 	}
 	return
 }
@@ -208,23 +264,25 @@ func (c *CourseMysql) DeleteCoursesByFilters(filterSet *pcourses.FilterSet) (del
 }
 
 // SyncCategories syncs categories for an course by course ID.
-func (c *CourseMysql) SyncCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error) {
-	stmt, err := c.db.Prepare("DELETE FROM ? WHERE course_id = ?")
+func (c *CourseMysql) SyncCategories(ctx context.Context, coursesWithCategories []*pcourses.CourseWithCategories) (err error) {
+	var (
+		placeholders []string
+		vals         []interface{}
+	)
+	for _, courseWithCategories := range coursesWithCategories {
+		placeholders = append(placeholders, "?")
+		vals = append(vals, courseWithCategories.Course.Id)
+	}
+	// start to update categories related to course
+	stmt, err := c.db.Prepare(fmt.Sprintf("DELETE FROM %s WHERE course_id IN (%s)", c.courseCategoryTable, strings.Join(placeholders, ",")))
+	spew.Dump(fmt.Sprintf("DELETE FROM %s WHERE course_id IN (%s)", c.courseCategoryTable, strings.Join(placeholders, ",")), vals)
 	if err != nil {
 		return
 	}
 	defer stmt.Close()
-	result, err = stmt.Exec(c.courseCategoryTable, courseID)
+	_, err = stmt.Exec(vals...)
 	if err != nil {
 		return
 	}
-	return
-}
-
-func (c *CourseMysql) AddCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error) {
-	return
-}
-
-func (c *CourseMysql) RemoveCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error) {
 	return
 }
