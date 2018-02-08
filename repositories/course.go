@@ -50,15 +50,34 @@ func (c *CourseMysql) UpsertCourses(ctx context.Context, courses []*pcourses.Cou
 			updates = append(updates, c)
 		}
 	}
-	r, err := c.InsertCourses(ctx, inserts)
-	if err != nil {
-		return
-	}
-	if insertedCount, err = r.RowsAffected(); err != nil {
-		return
-	}
-	if updatedCount, err = c.UpdateCourses(ctx, updates); err != nil {
-		return
+	insertedCountChan, updatedCountChan, errChan := make(chan int64), make(chan int64), make(chan error)
+	go func(insertedCountChan chan int64, errChan chan error) {
+		ir, iErr := c.InsertCourses(ctx, inserts)
+		if iErr != nil {
+			errChan <- iErr
+			return
+		}
+		count, raErr := ir.RowsAffected()
+		if raErr != nil {
+			errChan <- raErr
+			return
+		}
+		insertedCountChan <- count
+	}(insertedCountChan, errChan)
+	go func(updatedCountChan chan int64, errChan chan error) {
+		c, uErr := c.UpdateCourses(ctx, updates)
+		if uErr != nil {
+			errChan <- uErr
+			return
+		}
+		updatedCountChan <- c
+	}(updatedCountChan, errChan)
+	for i := 0; i < 2; i++ {
+		select {
+		case err = <-errChan:
+		case insertedCount = <-insertedCountChan:
+		case updatedCount = <-updatedCountChan:
+		}
 	}
 	return
 }
