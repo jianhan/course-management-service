@@ -18,14 +18,14 @@ import (
 
 // CourseRepository contains collection of methods for repository.
 type CourseRepository interface {
-	UpsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error)
+	UpsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (insertedCount, updatedCount int64, err error)
 	GetCoursesByFilters(filterSet *pcourses.FilterSet, sort *pmysql.Sort, pagination *pmysql.Pagination) ([]*pcourses.Course, error)
 	DeleteCoursesByFilters(filterSet *pcourses.FilterSet) (deleted int64, err error)
 	SyncCategories(ctx context.Context, coursesWithCategories []*pcourses.CourseWithCategories) (err error)
 	AddCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error)
 	RemoveCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error)
 	InsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error)
-	UpdateCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error)
+	UpdateCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (updated int64, err error)
 }
 
 // CourseMysql is a mysql implementation of CourseRepository.
@@ -41,7 +41,7 @@ func NewCourseRepository(db *sql.DB) CourseRepository {
 }
 
 // UpsertCourses update/insert multiple courses.
-func (c *CourseMysql) UpsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error) {
+func (c *CourseMysql) UpsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (insertedCount, updatedCount int64, err error) {
 	inserts, updates := []*pcourses.CourseWithCategories{}, []*pcourses.CourseWithCategories{}
 	for _, c := range courses {
 		if c.Course.Id == "" {
@@ -51,10 +51,13 @@ func (c *CourseMysql) UpsertCourses(ctx context.Context, courses []*pcourses.Cou
 		}
 	}
 	r, err := c.InsertCourses(ctx, inserts)
-	r, err = c.UpdateCourses(ctx, updates)
-
-	if err = c.SyncCategories(ctx, courses); err != nil {
-		spew.Dump(err)
+	if err != nil {
+		return
+	}
+	if insertedCount, err = r.RowsAffected(); err != nil {
+		return
+	}
+	if updatedCount, err = c.UpdateCourses(ctx, updates); err != nil {
 		return
 	}
 	return
@@ -116,7 +119,7 @@ func (c *CourseMysql) InsertCourses(ctx context.Context, courses []*pcourses.Cou
 	return
 }
 
-func (c *CourseMysql) UpdateCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error) {
+func (c *CourseMysql) UpdateCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (updated int64, err error) {
 	if len(courses) == 0 {
 		return
 	}
@@ -131,14 +134,14 @@ func (c *CourseMysql) UpdateCourses(ctx context.Context, courses []*pcourses.Cou
 	for _, courseWithCategories := range courses {
 		startTime, tErr := ptypes.Timestamp(courseWithCategories.Course.Start)
 		if tErr != nil {
-			return nil, tErr
+			return 0, tErr
 		}
 		endTime, tErr := ptypes.Timestamp(courseWithCategories.Course.End)
 		if tErr != nil {
-			return nil, tErr
+			return 0, tErr
 		}
 		updatedAtTime := time.Now()
-		result, err = stmt.Exec(
+		_, err = stmt.Exec(
 			courseWithCategories.Course.Name,
 			courseWithCategories.Course.Slug,
 			courseWithCategories.Course.Visible,
@@ -151,6 +154,7 @@ func (c *CourseMysql) UpdateCourses(ctx context.Context, courses []*pcourses.Cou
 		if err != nil {
 			return
 		}
+		updated++
 	}
 	return
 }

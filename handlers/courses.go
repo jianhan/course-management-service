@@ -22,11 +22,9 @@ func (c *Courses) UpsertCourses(ctx context.Context, req *pcourses.UpsertCourses
 	if err = req.Validate(); err != nil {
 		return merrors.BadRequest(API+".UpsertCourses", err.Error())
 	}
-	result, err := c.CourseRepository.UpsertCourses(ctx, req.Courses)
-	if err != nil {
+	if rsp.Inserted, rsp.Updated, err = c.CourseRepository.UpsertCourses(ctx, req.Courses); err != nil {
 		return
 	}
-	rsp.RowsAffected, err = result.RowsAffected()
 	return
 }
 
