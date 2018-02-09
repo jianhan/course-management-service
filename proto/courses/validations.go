@@ -25,31 +25,32 @@ func (r *GetCoursesByFiltersRequest) Validate() error {
 
 // Validate checks if any invalid slugs or any invalid UUIDs.
 func (r *UpsertCoursesRequest) Validate() error {
+	if r.Courses == nil {
+		return errors.New("Courses is empty")
+	}
+	if len(r.Courses) == 0 {
+		return errors.New("Empty courses supplied")
+	}
 	// validate course with categories if wish to update categories at the same time
-	if r.Courses != nil {
-		for k, v := range r.Courses {
-			if err := v.Validate(); err != nil {
+	for k, v := range r.Courses {
+		if err := v.Validate(); err != nil {
+			return err
+		}
+		if err := v.Validate(); err != nil {
+			return err
+		}
+		// if slug is empty then automatically generate one based on name.
+		if v.Slug == "" {
+			r.Courses[k].Slug = slug.Make(v.Name)
+		} else if !slug.IsSlug(v.Slug) {
+			return fmt.Errorf("course ID: %s is not a valid UUID", v.Slug)
+		}
+		if v.UpdatedAt == nil {
+			t, err := ptypes.TimestampProto(time.Now())
+			if err != nil {
 				return err
 			}
-			if v.Course == nil {
-				return errors.New("course empty")
-			}
-			if err := v.Course.Validate(); err != nil {
-				return err
-			}
-			// if slug is empty then automatically generate one based on name.
-			if v.Course.Slug == "" {
-				r.Courses[k].Course.Slug = slug.Make(v.Course.Name)
-			} else if !slug.IsSlug(v.Course.Slug) {
-				return fmt.Errorf("course ID: %s is not a valid UUID", v.Course.Slug)
-			}
-			if v.Course.UpdatedAt == nil {
-				t, err := ptypes.TimestampProto(time.Now())
-				if err != nil {
-					return err
-				}
-				r.Courses[k].Course.UpdatedAt = t
-			}
+			r.Courses[k].UpdatedAt = t
 		}
 	}
 	return nil
@@ -97,14 +98,4 @@ func (c Course) Validate() error {
 		// End is required.
 		validation.Field(&c.End, validation.Required.Error("course end is required")),
 	)
-}
-
-// Validate performs validation on category IDs.
-func (c *CourseWithCategories) Validate() error {
-	if len(c.CategoryIds) > 0 {
-		if err := pkgvalidation.ValidateSliceUUID(c.CategoryIds); err != nil {
-			return err
-		}
-	}
-	return nil
 }

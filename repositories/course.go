@@ -18,14 +18,16 @@ import (
 
 // CourseRepository contains collection of methods for repository.
 type CourseRepository interface {
-	UpsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (insertedCount, updatedCount int64, err error)
+	// course
+	UpsertCourses(ctx context.Context, courses []*pcourses.Course) (insertedCount, updatedCount int64, err error)
+	InsertCourses(ctx context.Context, courses []*pcourses.Course) (result sql.Result, err error)
+	UpdateCourses(ctx context.Context, courses []*pcourses.Course) (updated int64, err error)
 	GetCoursesByFilters(filterSet *pcourses.FilterSet, sort *pmysql.Sort, pagination *pmysql.Pagination) ([]*pcourses.Course, error)
 	DeleteCoursesByFilters(filterSet *pcourses.FilterSet) (deleted int64, err error)
-	SyncCategories(ctx context.Context, coursesWithCategories []*pcourses.CourseWithCategories) (err error)
+	// course & category relationship
 	AddCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error)
 	RemoveCategories(ctx context.Context, courseID string, categoryIDs []string) (result sql.Result, err error)
-	InsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error)
-	UpdateCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (updated int64, err error)
+	SyncCategories(ctx context.Context, courseID string, categoryIDs []string) (err error)
 }
 
 // CourseMysql is a mysql implementation of CourseRepository.
@@ -41,10 +43,10 @@ func NewCourseRepository(db *sql.DB) CourseRepository {
 }
 
 // UpsertCourses update/insert multiple courses.
-func (c *CourseMysql) UpsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (insertedCount, updatedCount int64, err error) {
-	inserts, updates := []*pcourses.CourseWithCategories{}, []*pcourses.CourseWithCategories{}
+func (c *CourseMysql) UpsertCourses(ctx context.Context, courses []*pcourses.Course) (insertedCount, updatedCount int64, err error) {
+	inserts, updates := []*pcourses.Course{}, []*pcourses.Course{}
 	for _, c := range courses {
-		if c.Course.Id == "" {
+		if c.Id == "" {
 			inserts = append(inserts, c)
 		} else {
 			updates = append(updates, c)
@@ -90,36 +92,36 @@ func (c *CourseMysql) RemoveCategories(ctx context.Context, courseID string, cat
 	return
 }
 
-func (c *CourseMysql) InsertCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (result sql.Result, err error) {
+func (c *CourseMysql) InsertCourses(ctx context.Context, courses []*pcourses.Course) (result sql.Result, err error) {
 	if len(courses) == 0 {
 		return
 	}
 	sql := fmt.Sprintf("INSERT INTO %s (id, name, slug, visible,description, start, end, updated_at) VALUES", c.coursesTable)
 	var placeholders []string
 	var vals []interface{}
-	for _, courseWithCategories := range courses {
-		newId, _ := uuid.NewUUID()
-		courseWithCategories.Course.Id = newId.String()
+	for _, c := range courses {
+		newID, _ := uuid.NewUUID()
+		c.Id = newID.String()
 		placeholders = append(placeholders, "(?,?,?,?,?,?,?,?)")
-		startTime, tErr := ptypes.Timestamp(courseWithCategories.Course.Start)
+		startTime, tErr := ptypes.Timestamp(c.Start)
 		if tErr != nil {
 			return nil, tErr
 		}
-		endTime, tErr := ptypes.Timestamp(courseWithCategories.Course.End)
+		endTime, tErr := ptypes.Timestamp(c.End)
 		if tErr != nil {
 			return nil, tErr
 		}
-		updatedAtTime, tErr := ptypes.Timestamp(courseWithCategories.Course.UpdatedAt)
+		updatedAtTime, tErr := ptypes.Timestamp(c.UpdatedAt)
 		if tErr != nil {
 			return nil, tErr
 		}
 		vals = append(
 			vals,
-			courseWithCategories.Course.Id,
-			courseWithCategories.Course.Name,
-			courseWithCategories.Course.Slug,
-			courseWithCategories.Course.Visible,
-			courseWithCategories.Course.Description,
+			c.Id,
+			c.Name,
+			c.Slug,
+			c.Visible,
+			c.Description,
 			startTime.Format("2006-01-02 15:04:05"),
 			endTime.Format("2006-01-02 15:04:05"),
 			updatedAtTime.Format("2006-01-02 15:04:05"),
@@ -138,7 +140,7 @@ func (c *CourseMysql) InsertCourses(ctx context.Context, courses []*pcourses.Cou
 	return
 }
 
-func (c *CourseMysql) UpdateCourses(ctx context.Context, courses []*pcourses.CourseWithCategories) (updated int64, err error) {
+func (c *CourseMysql) UpdateCourses(ctx context.Context, courses []*pcourses.Course) (updated int64, err error) {
 	if len(courses) == 0 {
 		return
 	}
@@ -150,25 +152,25 @@ func (c *CourseMysql) UpdateCourses(ctx context.Context, courses []*pcourses.Cou
 		return
 	}
 	defer stmt.Close()
-	for _, courseWithCategories := range courses {
-		startTime, tErr := ptypes.Timestamp(courseWithCategories.Course.Start)
+	for _, c := range courses {
+		startTime, tErr := ptypes.Timestamp(c.Start)
 		if tErr != nil {
 			return 0, tErr
 		}
-		endTime, tErr := ptypes.Timestamp(courseWithCategories.Course.End)
+		endTime, tErr := ptypes.Timestamp(c.End)
 		if tErr != nil {
 			return 0, tErr
 		}
 		updatedAtTime := time.Now()
 		_, err = stmt.Exec(
-			courseWithCategories.Course.Name,
-			courseWithCategories.Course.Slug,
-			courseWithCategories.Course.Visible,
-			courseWithCategories.Course.Description,
+			c.Name,
+			c.Slug,
+			c.Visible,
+			c.Description,
 			startTime.Format("2006-01-02 15:04:05"),
 			endTime.Format("2006-01-02 15:04:05"),
 			updatedAtTime.Format("2006-01-02 15:04:05"),
-			courseWithCategories.Course.Id,
+			c.Id,
 		)
 		if err != nil {
 			return
@@ -287,14 +289,14 @@ func (c *CourseMysql) DeleteCoursesByFilters(filterSet *pcourses.FilterSet) (del
 }
 
 // SyncCategories syncs categories for an course by course ID.
-func (c *CourseMysql) SyncCategories(ctx context.Context, coursesWithCategories []*pcourses.CourseWithCategories) (err error) {
+func (c *CourseMysql) SyncCategories(ctx context.Context, courseID string, categoryIDs []string) (err error) {
 	var (
 		placeholders []string
 		vals         []interface{}
 	)
-	for _, courseWithCategories := range coursesWithCategories {
+	for _, cID := range categoryIDs {
 		placeholders = append(placeholders, "?")
-		vals = append(vals, courseWithCategories.Course.Id)
+		vals = append(vals, cID)
 	}
 	// start to update categories related to course
 	stmt, err := c.db.Prepare(fmt.Sprintf("DELETE FROM %s WHERE course_id IN (%s)", c.courseCategoryTable, strings.Join(placeholders, ",")))
