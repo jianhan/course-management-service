@@ -25,7 +25,7 @@ message Course {
 	google.protobuf.Timestamp end = 8;
 	google.protobuf.Timestamp created_at = 9;
 	google.protobuf.Timestamp updated_at = 10;
-	repeated string categories = 11;
+	repeated string category_ids = 11;
 }
 
 // FilterSet contains data for filtering courses.
@@ -39,9 +39,15 @@ message FilterSet {
 	go.micro.srv.pkg.mysql.BoolField visible = 7;
 }
 
+message UpsertCourseRecord {
+	Course course = 1;
+	repeated string category_ids = 2;
+	go.micro.srv.pkg.mysql.UpsertOption option = 3;
+}
+
 // UpsertCoursesRequest contains data when upserts courses.
 message UpsertCoursesRequest {
-	repeated Course courses = 1;
+	repeated UpsertCourseRecord records = 1;
 }
 
 // GetCoursesByFiltersRequest contains fields when querying for courses

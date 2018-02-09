@@ -19,9 +19,9 @@ import (
 // CourseRepository contains collection of methods for repository.
 type CourseRepository interface {
 	// course
-	UpsertCourses(ctx context.Context, courses []*pcourses.Course) (insertedCount, updatedCount int64, err error)
-	InsertCourses(ctx context.Context, courses []*pcourses.Course) (result sql.Result, err error)
-	UpdateCourses(ctx context.Context, courses []*pcourses.Course) (updated int64, err error)
+	UpsertCourses(ctx context.Context, records []*pcourses.UpsertCourseRecord) (insertedCount, updatedCount int64, err error)
+	InsertCourses(ctx context.Context, records []*pcourses.UpsertCourseRecord) (result sql.Result, err error)
+	UpdateCourses(ctx context.Context, records []*pcourses.UpsertCourseRecord) (updated int64, err error)
 	GetCoursesByFilters(filterSet *pcourses.FilterSet, sort *pmysql.Sort, pagination *pmysql.Pagination) ([]*pcourses.Course, error)
 	DeleteCoursesByFilters(filterSet *pcourses.FilterSet) (deleted int64, err error)
 	// course & category relationship
@@ -43,13 +43,13 @@ func NewCourseRepository(db *sql.DB) CourseRepository {
 }
 
 // UpsertCourses update/insert multiple courses.
-func (c *CourseMysql) UpsertCourses(ctx context.Context, courses []*pcourses.Course) (insertedCount, updatedCount int64, err error) {
-	inserts, updates := []*pcourses.Course{}, []*pcourses.Course{}
-	for _, c := range courses {
-		if c.Id == "" {
-			inserts = append(inserts, c)
+func (c *CourseMysql) UpsertCourses(ctx context.Context, records []*pcourses.UpsertCourseRecord) (insertedCount, updatedCount int64, err error) {
+	inserts, updates := []*pcourses.UpsertCourseRecord{}, []*pcourses.UpsertCourseRecord{}
+	for _, v := range records {
+		if v.Course.Id == "" {
+			inserts = append(inserts, v)
 		} else {
-			updates = append(updates, c)
+			updates = append(updates, v)
 		}
 	}
 	insertedCountChan, updatedCountChan, errChan := make(chan int64), make(chan int64), make(chan error)
@@ -92,36 +92,36 @@ func (c *CourseMysql) RemoveCategories(ctx context.Context, courseID string, cat
 	return
 }
 
-func (c *CourseMysql) InsertCourses(ctx context.Context, courses []*pcourses.Course) (result sql.Result, err error) {
-	if len(courses) == 0 {
+func (c *CourseMysql) InsertCourses(ctx context.Context, records []*pcourses.UpsertCourseRecord) (result sql.Result, err error) {
+	if len(records) == 0 {
 		return
 	}
 	sql := fmt.Sprintf("INSERT INTO %s (id, name, slug, visible,description, start, end, updated_at) VALUES", c.coursesTable)
 	var placeholders []string
 	var vals []interface{}
-	for _, c := range courses {
+	for _, v := range records {
 		newID, _ := uuid.NewUUID()
-		c.Id = newID.String()
+		v.Course.Id = newID.String()
 		placeholders = append(placeholders, "(?,?,?,?,?,?,?,?)")
-		startTime, tErr := ptypes.Timestamp(c.Start)
+		startTime, tErr := ptypes.Timestamp(v.Course.Start)
 		if tErr != nil {
 			return nil, tErr
 		}
-		endTime, tErr := ptypes.Timestamp(c.End)
+		endTime, tErr := ptypes.Timestamp(v.Course.End)
 		if tErr != nil {
 			return nil, tErr
 		}
-		updatedAtTime, tErr := ptypes.Timestamp(c.UpdatedAt)
+		updatedAtTime, tErr := ptypes.Timestamp(v.Course.UpdatedAt)
 		if tErr != nil {
 			return nil, tErr
 		}
 		vals = append(
 			vals,
-			c.Id,
-			c.Name,
-			c.Slug,
-			c.Visible,
-			c.Description,
+			v.Course.Id,
+			v.Course.Name,
+			v.Course.Slug,
+			v.Course.Visible,
+			v.Course.Description,
 			startTime.Format("2006-01-02 15:04:05"),
 			endTime.Format("2006-01-02 15:04:05"),
 			updatedAtTime.Format("2006-01-02 15:04:05"),
@@ -140,8 +140,8 @@ func (c *CourseMysql) InsertCourses(ctx context.Context, courses []*pcourses.Cou
 	return
 }
 
-func (c *CourseMysql) UpdateCourses(ctx context.Context, courses []*pcourses.Course) (updated int64, err error) {
-	if len(courses) == 0 {
+func (c *CourseMysql) UpdateCourses(ctx context.Context, records []*pcourses.UpsertCourseRecord) (updated int64, err error) {
+	if len(records) == 0 {
 		return
 	}
 	sql := fmt.Sprintf(`UPDATE %s
@@ -152,25 +152,25 @@ func (c *CourseMysql) UpdateCourses(ctx context.Context, courses []*pcourses.Cou
 		return
 	}
 	defer stmt.Close()
-	for _, c := range courses {
-		startTime, tErr := ptypes.Timestamp(c.Start)
+	for _, v := range records {
+		startTime, tErr := ptypes.Timestamp(v.Course.Start)
 		if tErr != nil {
 			return 0, tErr
 		}
-		endTime, tErr := ptypes.Timestamp(c.End)
+		endTime, tErr := ptypes.Timestamp(v.Course.End)
 		if tErr != nil {
 			return 0, tErr
 		}
 		updatedAtTime := time.Now()
 		_, err = stmt.Exec(
-			c.Name,
-			c.Slug,
-			c.Visible,
-			c.Description,
+			v.Course.Name,
+			v.Course.Slug,
+			v.Course.Visible,
+			v.Course.Description,
 			startTime.Format("2006-01-02 15:04:05"),
 			endTime.Format("2006-01-02 15:04:05"),
 			updatedAtTime.Format("2006-01-02 15:04:05"),
-			c.Id,
+			v.Course.Id,
 		)
 		if err != nil {
 			return
